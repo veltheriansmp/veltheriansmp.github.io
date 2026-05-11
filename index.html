@@ -2,335 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cloudrend SMP | Welcome Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
-        :root {
-            --m3-purple-light: #F3EDF7;
-            --m3-purple-mid: #EADDFF;
-            --m3-purple-dark: #6750A4;
-            --m3-bg: #FEF7FF;
-            --m3-surface: #FFFFFF;
-            --m3-text: #1C1B1F;
-            --m3-text-variant: #49454F;
-        }
-
-        body { font-family: 'Roboto', sans-serif; background-color: var(--m3-bg); color: var(--m3-text); overflow-x: hidden; }
-        
-        .hidden { display: none !important; }
-
-        /* M3 Transitions */
-        .page-fade { animation: m3-fade 300ms ease-out; }
-        @keyframes m3-fade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        .hero-box { background-color: var(--m3-purple-light); border-radius: 28px; }
-        .kit-card { background-color: #E6E1E5; border-radius: 24px; aspect-ratio: 1.5 / 1; }
-
-        .m3-input {
-            background-color: #F3EDF7;
-            border-bottom: 1px solid var(--m3-text-variant);
-            height: 56px;
-            padding: 0 16px;
-            width: 100%;
-            outline: none;
-            border-radius: 4px 4px 0 0;
-            transition: background 200ms;
-        }
-        .m3-input:focus { background-color: #EADDFF; }
-
-        .m3-btn-filled {
-            background-color: var(--m3-purple-dark);
-            color: white;
-            border-radius: 100px;
-            height: 40px;
-            padding: 0 24px;
-            font-weight: 500;
-            transition: all 200ms;
-        }
-        .m3-btn-filled:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .m3-btn-tonal {
-            background-color: var(--m3-purple-mid);
-            color: #21005D;
-            border-radius: 100px;
-            height: 40px;
-            padding: 0 24px;
-            font-weight: 500;
-        }
-
-        .m3-snackbar {
-            background-color: #313033;
-            color: #F4EFF4;
-            border-radius: 4px;
-            padding: 14px 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-
-        .code-display {
-            background: #FFFFFF;
-            border: 2px dashed var(--m3-purple-dark);
-            border-radius: 16px;
-            font-family: monospace;
-            letter-spacing: 4px;
-        }
+        body { font-family: 'Roboto', sans-serif; background-color: #FEF7FF; color: #1C1B1F; }
+        .m3-rail { background-color: #F3EDF7; border-right: 1px solid #CAC4D0; }
+        .m3-card { background-color: #F3EDF7; border-radius: 28px; transition: all 200ms; }
+        .m3-card:hover { background-color: #EADDFF; }
+        .active-icon { background-color: #EADDFF; color: #21005D; border-radius: 100px; }
     </style>
 </head>
-<body>
+<body class="flex min-h-screen">
 
-    <!-- LOADING STATE -->
-    <div id="page-loading" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white">
-        <div class="relative w-12 h-12 flex items-center justify-center">
-            <div class="absolute inset-0 border-4 border-[#EADDFF] rounded-full"></div>
-            <div class="absolute inset-0 border-4 border-[#6750A4] border-t-transparent rounded-full animate-spin"></div>
-            <span class="material-symbols-outlined text-[#6750A4]">cloud</span>
-        </div>
-        <p id="loader-msg" class="mt-4 text-sm font-medium text-gray-500">Checking session...</p>
-    </div>
-
-    <!-- WELCOME HUB (HOME) -->
-    <div id="page-home" class="hidden page-fade min-h-screen p-4 md:p-8">
-        <nav class="flex justify-between items-center max-w-7xl mx-auto mb-12">
-            <span class="text-xl font-medium">Cloudrend SMP</span>
-            <div id="nav-auth-section">
-                <button onclick="showModal('modal-login')" class="flex items-center gap-2 m3-btn-tonal">
-                    <span class="material-symbols-outlined text-[20px]">account_circle</span> Login
-                </button>
+    <nav class="m3-rail w-24 flex flex-col items-center py-6 gap-8 shrink-0">
+        <span class="material-symbols-outlined cursor-pointer text-[#49454F]">menu</span>
+        <button class="w-14 h-14 bg-[#EADDFF] text-[#21005D] rounded-2xl flex items-center justify-center shadow-md">
+            <span class="material-symbols-outlined">edit</span>
+        </button>
+        <div class="flex flex-col gap-6 mt-4 w-full items-center">
+            <div class="flex flex-col items-center gap-1">
+                <div class="active-icon px-5 py-1"><span class="material-symbols-outlined">home</span></div>
+                <span class="text-[11px] font-medium">Home</span>
             </div>
-        </nav>
-
-        <main class="max-w-7xl mx-auto space-y-16">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="hero-box p-10 md:p-14 flex flex-col justify-center space-y-6">
-                    <h1 class="text-5xl md:text-6xl font-normal leading-tight">Welcome to <br><span class="font-bold">Cloudrend SMP</span></h1>
-                    <p class="text-gray-600 text-lg">A newly launched SMP that has been recently started!</p>
-                    <div class="flex items-center">
-                        <button onclick="showModal('modal-register')" class="m3-btn-filled flex items-center gap-2 rounded-r-none border-r border-white/20">
-                            <span class="material-symbols-outlined text-[20px]">assignment</span> Apply and Join!
-                        </button>
-                        <button class="m3-btn-filled rounded-l-none px-2">
-                            <span class="material-symbols-outlined">arrow_drop_down</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="rounded-[28px] overflow-hidden shadow-sm bg-gray-200">
-                    <img src="https://images.unsplash.com/photo-1627375415720-957d95993045?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover">
-                </div>
-            </div>
-
-            <section class="space-y-8">
-                <h2 class="text-3xl font-normal">What we offer?</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-4">
-                        <div class="kit-card"></div>
-                        <div class="px-2">
-                            <h3 class="font-bold text-lg">Starter Kit!</h3>
-                            <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-2">Iron Armor & Tools!</p>
-                            <p class="text-sm text-gray-600">Starter Kit allows you to properly prepare for such big events. It's our sign to thank you for joining!</p>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="kit-card"></div>
-                        <div class="px-2">
-                            <h3 class="font-bold text-lg">Starter Kit!</h3>
-                            <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-2">Iron Armor & Tools!</p>
-                            <p class="text-sm text-gray-600">Starter Kit allows you to properly prepare for such big events. It's our sign to thank you for joining!</p>
-                        </div>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="kit-card"></div>
-                        <div class="px-2">
-                            <h3 class="font-bold text-lg">Starter Kit!</h3>
-                            <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-2">Iron Armor & Tools!</p>
-                            <p class="text-sm text-gray-600">Starter Kit allows you to properly prepare for such big events. It's our sign to thank you for joining!</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- AUTH MODALS -->
-    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-        
-        <div id="modal-login" class="hidden w-full max-w-xs bg-[#F3EDF7] rounded-[28px] p-6 space-y-6 shadow-xl page-fade">
-            <div class="text-center space-y-2">
-                <span class="material-symbols-outlined text-gray-400">smartphone</span>
-                <h2 class="text-2xl font-normal">Login</h2>
-                <p class="text-[10px] text-gray-500">Enter your MC username used during registration.</p>
-            </div>
-            <div class="space-y-3">
-                <input id="login-username" type="text" placeholder="Minecraft Username" class="m3-input text-sm">
-            </div>
-            <div class="flex justify-center gap-2">
-                <button onclick="closeModals()" class="m3-btn-tonal flex-1 text-xs">Login</button>
-                <button onclick="closeModals()" class="m3-btn-tonal flex-1 text-xs bg-red-50">Cancel</button>
+            <div class="flex flex-col items-center gap-1 text-[#49454F]">
+                <span class="material-symbols-outlined">star</span>
+                <span class="text-[11px] font-medium">Events</span>
             </div>
         </div>
+    </nav>
 
-        <div id="modal-register" class="hidden w-full max-w-sm bg-[#F3EDF7] rounded-[28px] p-8 space-y-6 shadow-xl page-fade">
-            <div id="reg-step-username" class="space-y-6">
-                <div class="text-center space-y-2">
-                    <span class="material-symbols-outlined text-purple-600">person_add</span>
-                    <h2 class="text-xl font-medium">Verify Identity</h2>
-                    <p class="text-xs text-gray-500">Enter your Minecraft username to generate your unique link code.</p>
-                </div>
-                <div class="space-y-4">
-                    <input id="mc-username" type="text" placeholder="Minecraft Username" class="m3-input text-sm">
-                    <button id="btn-generate" onclick="handleCodeGeneration()" class="w-full m3-btn-filled">Get Link Code</button>
-                </div>
-                <button onclick="closeModals()" class="w-full text-xs text-gray-400 uppercase tracking-widest">Cancel</button>
+    <main class="flex-1 flex flex-col overflow-hidden">
+        <header class="h-16 flex justify-between items-center px-8">
+            <span class="material-symbols-outlined text-[#49454F]">account_circle</span>
+            <div class="flex items-center gap-6 text-[#49454F]">
+                <span class="material-symbols-outlined">notifications</span>
+                <span class="material-symbols-outlined">settings</span>
+                <button onclick="document.getElementById('login-modal').classList.toggle('hidden')" class="bg-[#6750A4] text-white px-6 py-2 rounded-full text-sm font-medium">Login</button>
             </div>
+        </header>
 
-            <div id="reg-step-code" class="hidden space-y-6">
-                <div class="text-center space-y-2">
-                    <h2 class="text-xl font-medium">Your Linking Code</h2>
-                    <p class="text-[11px] text-gray-500">DM a staff member on Discord with this code to be verified.</p>
-                </div>
-                <div class="code-display p-6 text-center text-3xl font-bold text-[#6750A4]" id="generated-code-text">CR-XXXX</div>
-                <div class="bg-white/40 p-4 rounded-2xl space-y-2">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Instructions:</p>
-                    <p class="text-[11px] text-gray-600">Join Discord and DM staff: <span class="font-mono bg-white px-1">Verify [Code]</span></p>
-                </div>
-                <button onclick="finishRegistration()" class="w-full m3-btn-tonal text-sm">I have DMed staff</button>
-            </div>
-
-            <div id="reg-step-done" class="hidden text-center space-y-6 py-4">
-                <span class="material-symbols-outlined text-6xl text-green-500">check_circle</span>
-                <h2 class="text-2xl font-medium">Request Sent!</h2>
-                <p class="text-sm text-gray-500">Request logged for <span id="final-username" class="font-bold"></span>.</p>
-                <button onclick="closeModals()" class="m3-btn-filled w-full">Back to Home</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- BANNED PAGE -->
-    <div id="page-banned" class="hidden page-fade min-h-screen flex items-center justify-center bg-white p-6">
-        <div class="max-w-xl w-full text-center space-y-10">
-            <h1 class="text-4xl font-normal">You are banned from the SMP</h1>
-            <p class="text-gray-500">Seriously, what did you even do T_T</p>
-            <div class="flex justify-center">
-                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100">
-                    <img id="banned-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Banned" class="w-full">
-                </div>
-            </div>
-            <div class="space-y-4 px-8">
-                <p class="text-sm text-gray-600">Reason: <span id="ban-reason" class="font-bold">Violating SMP Rules</span></p>
-            </div>
-            <div class="flex flex-col gap-2">
-                <button class="m3-btn-filled w-40 mx-auto">Appeal</button>
-                <button onclick="logout()" class="text-xs text-gray-400">Log Out</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cloudrend-smp';
-
-        window.showPage = (pageId) => {
-            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            const target = document.getElementById('page-' + pageId);
-            if(target) target.classList.remove('hidden');
-            window.closeModals();
-        };
-
-        window.showModal = (modalId) => {
-            document.getElementById('modal-overlay').classList.remove('hidden');
-            document.querySelectorAll('[id^="modal-"]').forEach(m => {
-                if (m.id !== 'modal-overlay') m.classList.add('hidden');
-            });
-            document.getElementById(modalId).classList.remove('hidden');
-        };
-
-        window.closeModals = () => {
-            document.getElementById('modal-overlay').classList.add('hidden');
-        };
-
-        window.logout = async () => {
-            await signOut(auth);
-            location.reload();
-        };
-
-        window.handleCodeGeneration = async () => {
-            const username = document.getElementById('mc-username').value;
-            const btn = document.getElementById('btn-generate');
-            if (!username || username.trim().length < 3) return;
-
-            btn.disabled = true;
-            btn.innerText = "Syncing...";
-
-            const randomCode = "CR-" + Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
+        <div class="flex-1 overflow-y-auto p-12">
+            <h1 class="text-6xl font-normal mb-12">Cloudrend Hub</h1>
             
-            if (auth.currentUser) {
-                const userRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'profile');
-                await setDoc(userRef, {
-                    username: username,
-                    code: randomCode,
-                    status: 'pending',
-                    timestamp: Date.now()
-                });
-
-                // Trigger Vercel Serverless Function (to hide Discord Webhook)
-                fetch('/api/verify', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, code: randomCode })
-                }).catch(e => console.log("If not on Vercel, this fails gracefully. Check Discord manually."));
-            }
-
-            document.getElementById('generated-code-text').innerText = randomCode;
-            document.getElementById('final-username').innerText = username;
-            document.getElementById('reg-step-username').classList.add('hidden');
-            document.getElementById('reg-step-code').classList.remove('hidden');
-        };
-
-        window.finishRegistration = () => {
-            document.getElementById('reg-step-code').classList.add('hidden');
-            document.getElementById('reg-step-done').classList.remove('hidden');
-        };
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
-                onSnapshot(userRef, (docSnap) => {
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.status === 'banned') {
-                            document.getElementById('ban-reason').innerText = data.reason || "Violating SMP Rules";
-                            document.getElementById('banned-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.username}`;
-                            window.showPage('banned');
-                        } else {
-                            document.getElementById('nav-auth-section').innerHTML = `
-                                <div class="flex items-center gap-3">
-                                    <span class="text-sm font-medium">Hello, ${data.username}</span>
-                                    <button onclick="logout()" class="material-symbols-outlined text-gray-400">logout</button>
+            <h2 class="text-2xl font-medium mb-8 flex items-center gap-4">Modules <span class="material-symbols-outlined">arrow_forward</span></h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-8 mb-16">
+                <script>
+                    for(let i=1; i<=7; i++) {
+                        document.write(`
+                            <div class="flex flex-col items-center gap-3 group cursor-pointer">
+                                <div class="w-20 h-20 bg-[#E6E1E5] rounded-full flex items-center justify-center group-hover:bg-[#EADDFF]">
+                                    <div class="w-10 h-10 bg-[#CAC4D0] rotate-45"></div>
                                 </div>
-                            `;
-                            window.showPage('home');
-                        }
-                    } else {
-                        window.showPage('home');
+                                <span class="text-sm font-medium text-[#49454F]">Label ${i}</span>
+                            </div>
+                        `);
                     }
-                    document.getElementById('page-loading').classList.add('hidden');
-                }, (err) => {
-                    window.showPage('home');
-                    document.getElementById('page-loading').classList.add('hidden');
-                });
+                </script>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="m3-card h-60 p-8 flex flex-col justify-end">
+                    <h3 class="text-2xl font-bold">Postgres Online</h3>
+                    <p class="text-sm text-[#49454F]">Neon instance connected via Vercel.</p>
+                </div>
+                <div class="m3-card h-60 p-8 flex flex-col justify-end">
+                    <h3 class="text-2xl font-bold">Edge Config</h3>
+                    <p class="text-sm text-[#49454F]">Running on Vercel Functions.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="login-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-[#F7F2FA] w-full max-w-sm rounded-[28px] p-8 shadow-2xl">
+            <h2 class="text-2xl text-center mb-8">SMP Login</h2>
+            <div class="space-y-4">
+                <input id="u" type="text" placeholder="Minecraft Username" class="w-full h-14 border border-[#79747E] rounded-md bg-transparent px-4 outline-none focus:border-[#6750A4] focus:border-2">
+                <input id="p" type="password" placeholder="Password" class="w-full h-14 border border-[#79747E] rounded-md bg-transparent px-4 outline-none focus:border-[#6750A4] focus:border-2">
+                <button onclick="auth()" class="w-full h-12 bg-[#6750A4] text-white rounded-full font-medium">Sign In</button>
+                <button onclick="document.getElementById('login-modal').classList.add('hidden')" class="w-full h-12 text-[#6750A4]">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function auth() {
+            const res = await fetch('/api/auth', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: u.value, password: p.value})
+            });
+            const data = await res.json();
+            if (res.ok) {
+                if (data.status === 'banned') alert('Banned: ' + data.ban_reason);
+                else alert('Logged in as ' + data.username);
+                location.reload();
             } else {
-                await signInAnonymously(auth);
+                alert(data.error);
             }
-        });
+        }
     </script>
 </body>
 </html>
