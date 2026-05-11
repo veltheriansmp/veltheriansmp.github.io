@@ -1,283 +1,336 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-    <title>Dashboard | Veltherian SMP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com"/>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudrend SMP | Welcome Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     <style>
         :root {
-            --bg: #0a0a0c;
-            --gold: #e2b749;
-            --border: rgba(255, 255, 255, 0.08);
-            --m3-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --m3-purple-light: #F3EDF7;
+            --m3-purple-mid: #EADDFF;
+            --m3-purple-dark: #6750A4;
+            --m3-bg: #FEF7FF;
+            --m3-surface: #FFFFFF;
+            --m3-text: #1C1B1F;
+            --m3-text-variant: #49454F;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Outfit', sans-serif; background-color: var(--bg); color: #fff; min-height: 100vh; overflow-x: hidden; }
-
-        /* PAGE TRANSITION */
-        #page-transition { position: fixed; inset: 0; background: var(--bg); z-index: 9999; pointer-events: none; transition: 0.5s var(--m3-ease); }
-        body.loaded #page-transition { opacity: 0; transform: translateY(-30px); }
-
-        /* NAVIGATION */
-        nav { width: 100%; padding: 15px 25px; display: flex; justify-content: center; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(12px); z-index: 100; }
-        .nav-container { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-logo img { height: 40px; width: 40px; border-radius: 8px; object-fit: cover; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-links a { color: #fff; text-decoration: none; opacity: 0.5; transition: 0.3s; font-size: 14px; font-weight: 500; }
-        .nav-links a.active, .nav-links a:hover { opacity: 1; color: var(--gold); }
-
-        /* HERO */
-        .hero { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 100px 20px; min-height: 80vh; }
-        .hero-logo { width: 180px; height: 180px; margin-bottom: 40px; border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        h1 { font-size: clamp(44px, 8vw, 80px); font-weight: 700; line-height: 0.9; margin-bottom: 25px; letter-spacing: -2px; }
-        .hero p { font-size: 18px; opacity: 0.5; max-width: 500px; line-height: 1.6; margin-bottom: 45px; }
-
-        /* BUTTONS */
-        .cta-group { display: flex; gap: 12px; }
-        .btn { padding: 16px 28px; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; transition: 0.4s var(--m3-ease); cursor: pointer; border: none; font-family: 'Outfit'; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-primary { background: #fff; color: #000; }
-        .btn-secondary { border: 1px solid var(--border); color: #fff; background: transparent; }
-        .btn-secondary:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
-
-        /* MODAL */
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; place-items: center; z-index: 2000; padding: 20px; backdrop-filter: blur(15px); opacity: 0; transition: 0.4s; overflow-y: auto; }
-        .overlay.active { display: grid; opacity: 1; }
-        .modal { background: #0d0d11; width: 100%; max-width: 520px; border: 1px solid var(--border); border-radius: 32px; padding: 40px; position: relative; transform: scale(0.9); transition: 0.5s var(--m3-ease); margin: auto; }
-        .overlay.active .modal { transform: scale(1); }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--m3-bg); color: var(--m3-text); overflow-x: hidden; }
         
-        /* FORM COMPONENTS */
-        .m-title h2 { font-size: 28px; margin-bottom: 8px; }
-        .m-title p { color: var(--gold); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 30px; font-weight: 700; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.4); margin-bottom: 8px; font-weight: 700; }
-        .input-group input, .input-group textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 14px; color: #fff; font-family: 'Outfit'; outline: none; transition: 0.3s; }
-        .input-group input:focus { border-color: var(--gold); }
-        
-        .toggle-container { display: flex; background: rgba(255,255,255,0.05); border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid var(--border); }
-        .toggle-btn { flex: 1; padding: 10px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.3s; opacity: 0.5; text-align: center; }
-        .toggle-btn.active { background: #fff; color: #000; opacity: 1; }
+        .hidden { display: none !important; }
 
-        .social-entry { display: flex; gap: 8px; margin-bottom: 8px; }
-        .add-btn { background: var(--gold); color: #000; border: none; border-radius: 8px; width: 45px; cursor: pointer; font-weight: bold; }
+        /* M3 Transitions */
+        .page-fade { animation: m3-fade 300ms ease-out; }
+        @keyframes m3-fade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
-        .app-step { display: none; opacity: 0; transform: translateY(10px); transition: 0.4s ease; }
-        .app-step.active { display: block; opacity: 1; transform: translateY(0); }
-        
-        /* THE GHOST */
-        #morph-ghost { position: fixed; z-index: 1000; pointer-events: none; opacity: 0; background: #fff; border-radius: 14px; }
-        .loader { width: 14px; height: 14px; border: 2px solid #000; border-bottom-color: transparent; border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; margin-right: 8px; }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .hero-box { background-color: var(--m3-purple-light); border-radius: 28px; }
+        .kit-card { background-color: #E6E1E5; border-radius: 24px; aspect-ratio: 1.5 / 1; }
 
-        /* GNOME ACTION ROW */
-        .action-row { display: flex; gap: 12px; margin-top: 30px; }
-        .action-row .btn { flex: 1; }
+        .m3-input {
+            background-color: #F3EDF7;
+            border-bottom: 1px solid var(--m3-text-variant);
+            height: 56px;
+            padding: 0 16px;
+            width: 100%;
+            outline: none;
+            border-radius: 4px 4px 0 0;
+            transition: background 200ms;
+        }
+        .m3-input:focus { background-color: #EADDFF; }
+
+        .m3-btn-filled {
+            background-color: var(--m3-purple-dark);
+            color: white;
+            border-radius: 100px;
+            height: 40px;
+            padding: 0 24px;
+            font-weight: 500;
+            transition: all 200ms;
+        }
+        .m3-btn-filled:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .m3-btn-tonal {
+            background-color: var(--m3-purple-mid);
+            color: #21005D;
+            border-radius: 100px;
+            height: 40px;
+            padding: 0 24px;
+            font-weight: 500;
+        }
+
+        .m3-snackbar {
+            background-color: #313033;
+            color: #F4EFF4;
+            border-radius: 4px;
+            padding: 14px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .code-display {
+            background: #FFFFFF;
+            border: 2px dashed var(--m3-purple-dark);
+            border-radius: 16px;
+            font-family: monospace;
+            letter-spacing: 4px;
+        }
     </style>
 </head>
 <body>
 
-<div id="page-transition"></div>
-
-<nav>
-    <div class="nav-container">
-        <div class="nav-logo"><img src="https://raw.githubusercontent.com/veltheriansmp/velthriansmp.github.io/main/assets/logo.png"></div>
-        <div class="nav-links">
-            <a href="index.html" class="active">Dashboard</a>
-            <a href="staff.html">Staff Directory</a>
+    <!-- LOADING STATE -->
+    <div id="page-loading" class="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-white">
+        <div class="relative w-12 h-12 flex items-center justify-center">
+            <div class="absolute inset-0 border-4 border-[#EADDFF] rounded-full"></div>
+            <div class="absolute inset-0 border-4 border-[#6750A4] border-t-transparent rounded-full animate-spin"></div>
+            <span class="material-symbols-outlined text-[#6750A4]">cloud</span>
         </div>
+        <p id="loader-msg" class="mt-4 text-sm font-medium text-gray-500">Checking session...</p>
     </div>
-</nav>
 
-<section class="hero">
-    <div class="event-banner" style="margin-bottom: 20px; padding: 10px 20px; border: 1px solid var(--gold); border-radius: 12px; background: rgba(226, 183, 73, 0.1); display: inline-block;">
-        <span style="color: var(--gold); font-weight: 600; font-size: 13px;">⚠️ NEXT EVENT: Saturday 7PM - THE MACE SNATCH</span>
-    </div>
-    
-    <img src="https://raw.githubusercontent.com/veltheriansmp/velthriansmp.github.io/main/assets/logo.png" class="hero-logo">
-    <h1>Veltherian<br><span style="color: var(--gold);">SMP</span></h1>
-    <p>The definitive private network for creators. Applications are currently open.</p>
-    <div class="cta-group">
-        <button id="join-btn" class="btn btn-primary" onclick="morphToJoin()">Join the Network</button>
-        <a href="staff.html" class="btn btn-secondary">Administrative Core</a>
-    </div>
-</section>
-
-<div id="morph-ghost"></div>
-
-<div class="overlay" id="join-overlay" onclick="if(event.target===this)closeJoinModal()">
-    <div class="modal" id="join-modal">
-        <!-- STEP 1: ENROLLMENT FORM -->
-        <div id="step-1" class="app-step active">
-            <div class="m-title"><h2>Enrollment</h2><p>Administrative Entry</p></div>
-            
-            <div style="display: flex; gap: 15px;">
-                <div class="input-group" style="flex:1;"><label>Discord</label><input type="text" id="form-discord" placeholder="user#0000"></div>
-                <div class="input-group" style="flex:1;"><label>Minecraft IGN</label><input type="text" id="form-ign" placeholder="Username"></div>
+    <!-- WELCOME HUB (HOME) -->
+    <div id="page-home" class="hidden page-fade min-h-screen p-4 md:p-8">
+        <nav class="flex justify-between items-center max-w-7xl mx-auto mb-12">
+            <span class="text-xl font-medium">Cloudrend SMP</span>
+            <div id="nav-auth-section">
+                <button onclick="showModal('modal-login')" class="flex items-center gap-2 m3-btn-tonal">
+                    <span class="material-symbols-outlined text-[20px]">account_circle</span> Login
+                </button>
             </div>
+        </nav>
 
-            <div class="input-group">
-                <label>Why do you want to join?</label>
-                <textarea id="form-reason" rows="3" placeholder="Tell us about your goals..."></textarea>
-            </div>
-
-            <div class="input-group">
-                <label>10+ Followers on Social Media?</label>
-                <div class="toggle-container">
-                    <div class="toggle-btn" id="toggle-no" onclick="setSocial(false)">No</div>
-                    <div class="toggle-btn active" id="toggle-yes" onclick="setSocial(true)">Yes</div>
-                </div>
-            </div>
-
-            <div id="social-section" class="input-group">
-                <label>Social Media Links</label>
-                <div id="social-wrapper">
-                    <div class="social-entry">
-                        <input type="text" class="social-input" placeholder="https://youtube.com/c/...">
-                        <button class="add-btn" onclick="addSocialInput()">+</button>
+        <main class="max-w-7xl mx-auto space-y-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="hero-box p-10 md:p-14 flex flex-col justify-center space-y-6">
+                    <h1 class="text-5xl md:text-6xl font-normal leading-tight">Welcome to <br><span class="font-bold">Cloudrend SMP</span></h1>
+                    <p class="text-gray-600 text-lg">A newly launched SMP that has been recently started!</p>
+                    <div class="flex items-center">
+                        <button onclick="showModal('modal-register')" class="m3-btn-filled flex items-center gap-2 rounded-r-none border-r border-white/20">
+                            <span class="material-symbols-outlined text-[20px]">assignment</span> Apply and Join!
+                        </button>
+                        <button class="m3-btn-filled rounded-l-none px-2">
+                            <span class="material-symbols-outlined">arrow_drop_down</span>
+                        </button>
                     </div>
                 </div>
+                <div class="rounded-[28px] overflow-hidden shadow-sm bg-gray-200">
+                    <img src="https://images.unsplash.com/photo-1627375415720-957d95993045?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover">
+                </div>
             </div>
 
-            <!-- GNOME-STYLE ACTION ROW -->
-            <div class="action-row">
-                <button class="btn btn-secondary" onclick="closeJoinModal()">Cancel</button>
-                <button id="submit-req" class="btn btn-primary" onclick="submitApplication()">Submit</button>
+            <section class="space-y-8">
+                <h2 class="text-3xl font-normal">What we offer?</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-4">
+                        <div class="kit-card"></div>
+                        <div class="px-2">
+                            <h3 class="font-bold text-lg">Starter Kit!</h3>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-2">Iron Armor & Tools!</p>
+                            <p class="text-sm text-gray-600">Starter Kit allows you to properly prepare for such big events. It's our sign to thank you for joining!</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="kit-card"></div>
+                        <div class="px-2">
+                            <h3 class="font-bold text-lg">Starter Kit!</h3>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-2">Iron Armor & Tools!</p>
+                            <p class="text-sm text-gray-600">Starter Kit allows you to properly prepare for such big events. It's our sign to thank you for joining!</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="kit-card"></div>
+                        <div class="px-2">
+                            <h3 class="font-bold text-lg">Starter Kit!</h3>
+                            <p class="text-xs text-gray-500 uppercase tracking-wider font-bold mb-2">Iron Armor & Tools!</p>
+                            <p class="text-sm text-gray-600">Starter Kit allows you to properly prepare for such big events. It's our sign to thank you for joining!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- AUTH MODALS -->
+    <div id="modal-overlay" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        
+        <div id="modal-login" class="hidden w-full max-w-xs bg-[#F3EDF7] rounded-[28px] p-6 space-y-6 shadow-xl page-fade">
+            <div class="text-center space-y-2">
+                <span class="material-symbols-outlined text-gray-400">smartphone</span>
+                <h2 class="text-2xl font-normal">Login</h2>
+                <p class="text-[10px] text-gray-500">Enter your MC username used during registration.</p>
+            </div>
+            <div class="space-y-3">
+                <input id="login-username" type="text" placeholder="Minecraft Username" class="m3-input text-sm">
+            </div>
+            <div class="flex justify-center gap-2">
+                <button onclick="closeModals()" class="m3-btn-tonal flex-1 text-xs">Login</button>
+                <button onclick="closeModals()" class="m3-btn-tonal flex-1 text-xs bg-red-50">Cancel</button>
             </div>
         </div>
 
-        <!-- STEP 2: REVIEW -->
-        <div id="step-2" class="app-step">
-            <div class="m-title"><h2>Review</h2><p>Processing</p></div>
-            <p style="opacity: 0.7; margin-bottom: 30px;">Data encrypted and sent. A Moderator will reach out on Discord for your verification interview.</p>
-            <button class="btn btn-primary" style="width:100%" onclick="closeJoinModal()">Understood</button>
+        <div id="modal-register" class="hidden w-full max-w-sm bg-[#F3EDF7] rounded-[28px] p-8 space-y-6 shadow-xl page-fade">
+            <div id="reg-step-username" class="space-y-6">
+                <div class="text-center space-y-2">
+                    <span class="material-symbols-outlined text-purple-600">person_add</span>
+                    <h2 class="text-xl font-medium">Verify Identity</h2>
+                    <p class="text-xs text-gray-500">Enter your Minecraft username to generate your unique link code.</p>
+                </div>
+                <div class="space-y-4">
+                    <input id="mc-username" type="text" placeholder="Minecraft Username" class="m3-input text-sm">
+                    <button id="btn-generate" onclick="handleCodeGeneration()" class="w-full m3-btn-filled">Get Link Code</button>
+                </div>
+                <button onclick="closeModals()" class="w-full text-xs text-gray-400 uppercase tracking-widest">Cancel</button>
+            </div>
+
+            <div id="reg-step-code" class="hidden space-y-6">
+                <div class="text-center space-y-2">
+                    <h2 class="text-xl font-medium">Your Linking Code</h2>
+                    <p class="text-[11px] text-gray-500">DM a staff member on Discord with this code to be verified.</p>
+                </div>
+                <div class="code-display p-6 text-center text-3xl font-bold text-[#6750A4]" id="generated-code-text">CR-XXXX</div>
+                <div class="bg-white/40 p-4 rounded-2xl space-y-2">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Instructions:</p>
+                    <p class="text-[11px] text-gray-600">Join Discord and DM staff: <span class="font-mono bg-white px-1">Verify [Code]</span></p>
+                </div>
+                <button onclick="finishRegistration()" class="w-full m3-btn-tonal text-sm">I have DMed staff</button>
+            </div>
+
+            <div id="reg-step-done" class="hidden text-center space-y-6 py-4">
+                <span class="material-symbols-outlined text-6xl text-green-500">check_circle</span>
+                <h2 class="text-2xl font-medium">Request Sent!</h2>
+                <p class="text-sm text-gray-500">Request logged for <span id="final-username" class="font-bold"></span>.</p>
+                <button onclick="closeModals()" class="m3-btn-filled w-full">Back to Home</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // Transition Logic
-    window.onload = () => document.body.classList.add('loaded');
+    <!-- BANNED PAGE -->
+    <div id="page-banned" class="hidden page-fade min-h-screen flex items-center justify-center bg-white p-6">
+        <div class="max-w-xl w-full text-center space-y-10">
+            <h1 class="text-4xl font-normal">You are banned from the SMP</h1>
+            <p class="text-gray-500">Seriously, what did you even do T_T</p>
+            <div class="flex justify-center">
+                <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100">
+                    <img id="banned-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Banned" class="w-full">
+                </div>
+            </div>
+            <div class="space-y-4 px-8">
+                <p class="text-sm text-gray-600">Reason: <span id="ban-reason" class="font-bold">Violating SMP Rules</span></p>
+            </div>
+            <div class="flex flex-col gap-2">
+                <button class="m3-btn-filled w-40 mx-auto">Appeal</button>
+                <button onclick="logout()" class="text-xs text-gray-400">Log Out</button>
+            </div>
+        </div>
+    </div>
 
-    const _0x4a21 = "aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTUwMjExMDg1NTA3NTA3NDA1MC9JWXZvY0liU3Q1VFNtUi1uRENpMEctUzcwU0ZMRUJ2ZHpzR1N3c1FxWHdSa3Z0Y09YWEhPRTQ0NmxTVm5ZcVZYcmtOUA=="; 
-    let hasSocial = true;
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInAnonymously, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    function setSocial(val) {
-        hasSocial = val;
-        document.getElementById('toggle-yes').classList.toggle('active', val);
-        document.getElementById('toggle-no').classList.toggle('active', !val);
-        const section = document.getElementById('social-section');
-        section.style.opacity = val ? "1" : "0.2";
-        section.style.pointerEvents = val ? "all" : "none";
-    }
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'cloudrend-smp';
 
-    function addSocialInput() {
-        if(!hasSocial) return;
-        const wrapper = document.getElementById('social-wrapper');
-        const newEntry = document.createElement('div');
-        newEntry.className = 'social-entry';
-        newEntry.innerHTML = '<input type="text" class="social-input" placeholder="Another link..."><button class="add-btn" onclick="this.parentElement.remove()" style="background:#ff4757">×</button>';
-        wrapper.appendChild(newEntry);
-    }
+        window.showPage = (pageId) => {
+            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+            const target = document.getElementById('page-' + pageId);
+            if(target) target.classList.remove('hidden');
+            window.closeModals();
+        };
 
-    async function submitApplication() {
-        const ign = document.getElementById('form-ign').value;
-        const discord = document.getElementById('form-discord').value;
-        const reason = document.getElementById('form-reason').value;
-        const btn = document.getElementById('submit-req');
-        
-        const socialInputs = document.querySelectorAll('.social-input');
-        let socialLinks = Array.from(socialInputs).map(i => i.value).filter(v => v !== "").join('\n');
-        if(!hasSocial) socialLinks = "None (Under 10 followers)";
+        window.showModal = (modalId) => {
+            document.getElementById('modal-overlay').classList.remove('hidden');
+            document.querySelectorAll('[id^="modal-"]').forEach(m => {
+                if (m.id !== 'modal-overlay') m.classList.add('hidden');
+            });
+            document.getElementById(modalId).classList.remove('hidden');
+        };
 
-        if(!ign || !discord || !reason) return alert("Please fill all required fields.");
+        window.closeModals = () => {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        };
 
-        btn.innerHTML = '<span class="loader"></span> Sending';
-        btn.disabled = true;
+        window.logout = async () => {
+            await signOut(auth);
+            location.reload();
+        };
 
-        try {
-            const hook = atob(_0x4a21);
-            const payload = {
-                embeds: [{
-                    title: "⚔️ VELTHERIAN APPLICATION",
-                    color: 14858057,
-                    thumbnail: { url: 'https://raw.githubusercontent.com/veltheriansmp/velthriansmp.github.io/main/assets/logo.png' },
-                    fields: [
-                        { name: "Minecraft IGN", value: "```" + ign + "```", inline: true },
-                        { name: "Discord", value: "```" + discord + "```", inline: true },
-                        { name: "Reason for Joining", value: ">>> " + reason },
-                        { name: "Social Media Presence", value: "```" + socialLinks + "```" }
-                    ],
-                    footer: { text: "Veltherian Administrative Core" },
-                    timestamp: new Date()
-                }]
-            };
+        window.handleCodeGeneration = async () => {
+            const username = document.getElementById('mc-username').value;
+            const btn = document.getElementById('btn-generate');
+            if (!username || username.trim().length < 3) return;
 
-            await fetch(hook, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            document.getElementById('step-1').classList.remove('active');
-            document.getElementById('step-2').classList.add('active');
-        } catch (err) {
-            alert("Connection error.");
-            btn.innerHTML = 'Submit';
-            btn.disabled = false;
-        }
-    }
+            btn.disabled = true;
+            btn.innerText = "Syncing...";
 
-    function morphToJoin() {
-        const btn = document.getElementById('join-btn');
-        const ghost = document.getElementById('morph-ghost');
-        const overlay = document.getElementById('join-overlay');
-        const modal = document.getElementById('join-modal');
-        const rect = btn.getBoundingClientRect();
-        
-        ghost.style.top = rect.top + 'px';
-        ghost.style.left = rect.left + 'px';
-        ghost.style.width = rect.width + 'px';
-        ghost.style.height = rect.height + 'px';
-        ghost.style.opacity = '1';
-        ghost.style.transition = 'all 0.6s var(--m3-ease)';
+            const randomCode = "CR-" + Math.floor(Math.random()*16777215).toString(16).toUpperCase().substring(0, 4);
+            
+            if (auth.currentUser) {
+                const userRef = doc(db, 'artifacts', appId, 'users', auth.currentUser.uid, 'profile');
+                await setDoc(userRef, {
+                    username: username,
+                    code: randomCode,
+                    status: 'pending',
+                    timestamp: Date.now()
+                });
 
-        overlay.style.display = 'grid';
-        setTimeout(() => {
-            const mRect = modal.getBoundingClientRect();
-            ghost.style.top = mRect.top + 'px';
-            ghost.style.left = mRect.left + 'px';
-            ghost.style.width = mRect.width + 'px';
-            ghost.style.height = mRect.height + 'px';
-            ghost.style.borderRadius = '32px';
-            ghost.style.background = '#0d0d11';
-        }, 10);
+                // Trigger Vercel Serverless Function (to hide Discord Webhook)
+                fetch('/api/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, code: randomCode })
+                }).catch(e => console.log("If not on Vercel, this fails gracefully. Check Discord manually."));
+            }
 
-        setTimeout(() => {
-            overlay.classList.add('active');
-            ghost.style.opacity = '0';
-        }, 500);
-    }
+            document.getElementById('generated-code-text').innerText = randomCode;
+            document.getElementById('final-username').innerText = username;
+            document.getElementById('reg-step-username').classList.add('hidden');
+            document.getElementById('reg-step-code').classList.remove('hidden');
+        };
 
-    function closeJoinModal() {
-        document.getElementById('join-overlay').classList.remove('active');
-        setTimeout(() => {
-            document.getElementById('join-overlay').style.display = 'none';
-            document.getElementById('morph-ghost').style.opacity = '0';
-            document.getElementById('step-1').classList.add('active');
-            document.getElementById('step-2').classList.remove('active');
-            document.getElementById('submit-req').disabled = false;
-            document.getElementById('submit-req').innerHTML = 'Submit';
-        }, 400);
-    }
-    
-    // Page Exit Transitions
-    document.querySelectorAll('.nav-links a, .btn-secondary').forEach(link => {
-        link.addEventListener('click', e => {
-            const href = link.getAttribute('href');
-            if(href && href.includes('.html')) {
-                e.preventDefault();
-                document.body.classList.remove('loaded');
-                setTimeout(() => window.location.href = href, 500);
+        window.finishRegistration = () => {
+            document.getElementById('reg-step-code').classList.add('hidden');
+            document.getElementById('reg-step-done').classList.remove('hidden');
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile');
+                onSnapshot(userRef, (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        if (data.status === 'banned') {
+                            document.getElementById('ban-reason').innerText = data.reason || "Violating SMP Rules";
+                            document.getElementById('banned-avatar').src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${data.username}`;
+                            window.showPage('banned');
+                        } else {
+                            document.getElementById('nav-auth-section').innerHTML = `
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm font-medium">Hello, ${data.username}</span>
+                                    <button onclick="logout()" class="material-symbols-outlined text-gray-400">logout</button>
+                                </div>
+                            `;
+                            window.showPage('home');
+                        }
+                    } else {
+                        window.showPage('home');
+                    }
+                    document.getElementById('page-loading').classList.add('hidden');
+                }, (err) => {
+                    window.showPage('home');
+                    document.getElementById('page-loading').classList.add('hidden');
+                });
+            } else {
+                await signInAnonymously(auth);
             }
         });
-    });
-</script>
+    </script>
 </body>
 </html>
