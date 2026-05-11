@@ -2,32 +2,45 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #FEF7FF; color: #1C1B1F; }
-        .m3-rail { background-color: #F3EDF7; border-right: 1px solid #CAC4D0; }
-        .m3-card { background-color: #F3EDF7; border-radius: 28px; transition: all 200ms; }
-        .m3-card:hover { background-color: #EADDFF; }
-        .active-icon { background-color: #EADDFF; color: #21005D; border-radius: 100px; }
+        body { background-color: #FEF7FF; font-family: sans-serif; }
+        .m3-rail { background-color: #F3EDF7; }
+        .m3-card { background-color: #F3EDF7; border-radius: 28px; }
+        /* Simple Spinner Animation */
+        .spinner { border: 4px solid #EADDFF; border-top: 4px solid #6750A4; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="flex min-h-screen">
 
-    <nav class="m3-rail w-24 flex flex-col items-center py-6 gap-8 shrink-0">
-        <span class="material-symbols-outlined cursor-pointer text-[#49454F]">menu</span>
-        <button class="w-14 h-14 bg-[#EADDFF] text-[#21005D] rounded-2xl flex items-center justify-center shadow-md">
-            <span class="material-symbols-outlined">edit</span>
-        </button>
-        <div class="flex flex-col gap-6 mt-4 w-full items-center">
-            <div class="flex flex-col items-center gap-1">
-                <div class="active-icon px-5 py-1"><span class="material-symbols-outlined">home</span></div>
-                <span class="text-[11px] font-medium">Home</span>
+    <div id="loader" class="fixed inset-0 z-[100] bg-[#FEF7FF] flex flex-col items-center justify-center gap-4">
+        <div class="spinner"></div>
+        <p class="text-[#6750A4] font-medium animate-pulse">Checking session...</p>
+    </div>
+
+    <div id="banned-screen" class="hidden fixed inset-0 z-[90] bg-[#FFF8F7] flex flex-col items-center justify-center p-6 text-center">
+        <div class="max-w-md space-y-6">
+            <span class="material-symbols-outlined text-[#BA1A1A] text-7xl">gavel</span>
+            <h1 class="text-4xl font-normal text-[#1C1B1F]">You are banned from the SMP</h1>
+            <div class="m3-card p-6 border border-[#BA1A1A]/20">
+                <p id="ban-reason" class="text-[#410002] font-mono text-sm">Loading reason...</p>
             </div>
-            <div class="flex flex-col items-center gap-1 text-[#49454F]">
-                <span class="material-symbols-outlined">star</span>
-                <span class="text-[11px] font-medium">Events</span>
+            <button onclick="logout()" class="px-8 py-3 bg-[#BA1A1A] text-white rounded-full font-medium">Log Out</button>
+        </div>
+    </div>
+
+    <nav class="m3-rail w-24 flex flex-col items-center py-6 gap-8 border-r border-[#CAC4D0]">
+        <span class="material-symbols-outlined text-[#49454F] cursor-pointer">menu</span>
+        <div class="w-14 h-14 bg-[#EADDFF] text-[#21005D] rounded-2xl flex items-center justify-center shadow-sm">
+            <span class="material-symbols-outlined">edit</span>
+        </div>
+        <div class="flex flex-col gap-6 mt-4 items-center w-full">
+            <div class="flex flex-col items-center gap-1 text-[#21005D]">
+                <div class="bg-[#EADDFF] px-5 py-1 rounded-full"><span class="material-symbols-outlined">home</span></div>
+                <span class="text-[11px] font-bold">Home</span>
             </div>
         </div>
     </nav>
@@ -35,73 +48,96 @@
     <main class="flex-1 flex flex-col overflow-hidden">
         <header class="h-16 flex justify-between items-center px-8">
             <span class="material-symbols-outlined text-[#49454F]">account_circle</span>
-            <div class="flex items-center gap-6 text-[#49454F]">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="material-symbols-outlined">settings</span>
-                <button onclick="document.getElementById('login-modal').classList.toggle('hidden')" class="bg-[#6750A4] text-white px-6 py-2 rounded-full text-sm font-medium">Login</button>
+            <div id="auth-zone">
+                <button onclick="openModal()" class="bg-[#6750A4] text-white px-6 py-2 rounded-full text-sm font-medium">Login</button>
             </div>
         </header>
 
-        <div class="flex-1 overflow-y-auto p-12">
-            <h1 class="text-6xl font-normal mb-12">Cloudrend Hub</h1>
-            
-            <h2 class="text-2xl font-medium mb-8 flex items-center gap-4">Modules <span class="material-symbols-outlined">arrow_forward</span></h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-8 mb-16">
-                <script>
-                    for(let i=1; i<=7; i++) {
-                        document.write(`
-                            <div class="flex flex-col items-center gap-3 group cursor-pointer">
-                                <div class="w-20 h-20 bg-[#E6E1E5] rounded-full flex items-center justify-center group-hover:bg-[#EADDFF]">
-                                    <div class="w-10 h-10 bg-[#CAC4D0] rotate-45"></div>
-                                </div>
-                                <span class="text-sm font-medium text-[#49454F]">Label ${i}</span>
-                            </div>
-                        `);
-                    }
-                </script>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="m3-card h-60 p-8 flex flex-col justify-end">
-                    <h3 class="text-2xl font-bold">Postgres Online</h3>
-                    <p class="text-sm text-[#49454F]">Neon instance connected via Vercel.</p>
-                </div>
-                <div class="m3-card h-60 p-8 flex flex-col justify-end">
-                    <h3 class="text-2xl font-bold">Edge Config</h3>
-                    <p class="text-sm text-[#49454F]">Running on Vercel Functions.</p>
-                </div>
+        <div class="p-12">
+            <h1 class="text-6xl font-normal text-[#1C1B1F] mb-12">Label</h1>
+            <div class="grid grid-cols-2 md:grid-cols-7 gap-8 mb-16">
+                <div class="flex flex-col items-center gap-3"><div class="w-20 h-20 bg-[#E6E1E5] rounded-full"></div><span class="text-xs">Label</span></div>
+                <div class="flex flex-col items-center gap-3"><div class="w-20 h-20 bg-[#E6E1E5] rounded-full"></div><span class="text-xs">Label</span></div>
             </div>
         </div>
     </main>
 
-    <div id="login-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="login-modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
         <div class="bg-[#F7F2FA] w-full max-w-sm rounded-[28px] p-8 shadow-2xl">
-            <h2 class="text-2xl text-center mb-8">SMP Login</h2>
+            <h2 class="text-2xl text-center mb-8 font-normal">SMP Login</h2>
             <div class="space-y-4">
-                <input id="u" type="text" placeholder="Minecraft Username" class="w-full h-14 border border-[#79747E] rounded-md bg-transparent px-4 outline-none focus:border-[#6750A4] focus:border-2">
-                <input id="p" type="password" placeholder="Password" class="w-full h-14 border border-[#79747E] rounded-md bg-transparent px-4 outline-none focus:border-[#6750A4] focus:border-2">
-                <button onclick="auth()" class="w-full h-12 bg-[#6750A4] text-white rounded-full font-medium">Sign In</button>
-                <button onclick="document.getElementById('login-modal').classList.add('hidden')" class="w-full h-12 text-[#6750A4]">Cancel</button>
+                <input id="user-input" type="text" placeholder="Username" class="w-full h-14 border border-[#79747E] rounded-lg bg-transparent px-4 outline-none focus:border-2 focus:border-[#6750A4]">
+                <input id="pass-input" type="password" placeholder="Password" class="w-full h-14 border border-[#79747E] rounded-lg bg-transparent px-4 outline-none focus:border-2 focus:border-[#6750A4]">
+                <button onclick="handleLogin()" class="w-full h-12 bg-[#6750A4] text-white rounded-full font-medium">Sign In</button>
+                <button onclick="closeModal()" class="w-full h-12 text-[#6750A4] font-medium">Cancel</button>
             </div>
         </div>
     </div>
 
     <script>
-        async function auth() {
-            const res = await fetch('/api/auth', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: u.value, password: p.value})
-            });
-            const data = await res.json();
-            if (res.ok) {
-                if (data.status === 'banned') alert('Banned: ' + data.ban_reason);
-                else alert('Logged in as ' + data.username);
-                location.reload();
+        // Core logic to get you out of the spinner hell
+        const loader = document.getElementById('loader');
+        const bannedScreen = document.getElementById('banned-screen');
+
+        window.onload = () => {
+            const session = localStorage.getItem('smp_session');
+            if (session) {
+                const user = JSON.parse(session);
+                checkStatus(user);
             } else {
-                alert(data.error);
+                loader.classList.add('hidden'); // No session, just show home
+            }
+        };
+
+        function checkStatus(user) {
+            if (user.status === 'banned') {
+                document.getElementById('ban-reason').innerText = user.ban_reason || "No reason specified.";
+                bannedScreen.classList.remove('hidden');
+            } else {
+                document.getElementById('auth-zone').innerHTML = `
+                    <div class="flex items-center gap-3 bg-[#EADDFF] px-4 py-1 rounded-full">
+                        <span class="text-xs font-bold text-[#21005D]">${user.username}</span>
+                        <button onclick="logout()" class="material-symbols-outlined text-sm">logout</button>
+                    </div>`;
+            }
+            loader.classList.add('hidden');
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('user-input').value;
+            const password = document.getElementById('pass-input').value;
+            
+            // Toggle loader while fetching
+            loader.classList.remove('hidden');
+            
+            try {
+                const res = await fetch('/api/auth', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    localStorage.setItem('smp_session', JSON.stringify(data));
+                    location.reload();
+                } else {
+                    alert(data.error);
+                    loader.classList.add('hidden');
+                }
+            } catch (e) {
+                alert("Database connection failed. Check your Vercel logs.");
+                loader.classList.add('hidden');
             }
         }
+
+        function logout() {
+            localStorage.removeItem('smp_session');
+            location.reload();
+        }
+
+        function openModal() { document.getElementById('login-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('login-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
