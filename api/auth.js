@@ -6,24 +6,22 @@ export default async function handler(req, res) {
     const { username, password } = req.body;
 
     try {
-        // Neon query via Vercel Postgres adapter
         const { rows } = await sql`
             SELECT * FROM users WHERE LOWER(username) = ${username.toLowerCase()} LIMIT 1;
         `;
-
         const user = rows[0];
-        if (!user) return res.status(401).json({ error: 'User not found!' });
-
-        // Compare bcrypt hash
+        
+        if (!user) return res.status(401).json({ error: 'User not found' });
+        
         const isMatch = await bcrypt.compare(password, user.password_hash);
-        if (!isMatch) return res.status(401).json({ error: 'Invalid password' });
+        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
 
-        return res.status(200).json({
-            username: user.username,
-            status: user.status,
-            ban_reason: user.ban_reason
+        return res.status(200).json({ 
+            username: user.username, 
+            status: user.status, 
+            ban_reason: user.ban_reason 
         });
     } catch (e) {
-        return res.status(500).json({ error: 'Database connection error' });
+        return res.status(500).json({ error: 'DB Error' });
     }
 }
