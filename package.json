@@ -1,0 +1,9 @@
+{
+  "name": "cloudrend-hub",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@vercel/postgres": "^0.8.0",
+    "bcryptjs": "^2.4.3"
+  }
+}
