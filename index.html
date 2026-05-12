@@ -364,6 +364,10 @@
     </a>
     <div style="display:flex;align-items:center;gap:12px;">
       <span id="nav-username" style="font-size:14px;font-weight:700;color:var(--md-on-surface-variant);"></span>
+      <span id="nav-staff-badge" style="display:none;background:#FFF3E0;color:#E65100;font-size:11px;font-weight:800;padding:3px 10px;border-radius:100px;letter-spacing:0.3px;">
+        <span class="material-symbols-rounded" style="font-size:13px;vertical-align:middle;">shield</span>
+        STAFF
+      </span>
       <button class="btn-outlined" onclick="logout()" style="padding:7px 16px;font-size:13px;">
         <span class="material-symbols-rounded" style="font-size:16px;">logout</span>
         Logout
@@ -446,6 +450,65 @@
     </div>
     <span class="chip active" id="dashboard-status">active</span>
   </div>
+
+  <!-- ==============================
+       STAFF PANEL — only rendered for staff accounts
+  ============================== -->
+  <div id="staff-panel" style="display:none;margin-top:36px;">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+      <div style="width:40px;height:40px;border-radius:12px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;">
+        <span class="material-symbols-rounded" style="color:#E65100;font-size:22px;">admin_panel_settings</span>
+      </div>
+      <div>
+        <h2 style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin:0;color:var(--md-on-surface);">Staff Panel</h2>
+        <p style="margin:0;font-size:12px;color:var(--md-on-surface-variant);font-weight:600;">Manage players — handle with care</p>
+      </div>
+      <button class="btn-outlined" onclick="loadUsers()" style="margin-left:auto;padding:7px 16px;font-size:13px;">
+        <span class="material-symbols-rounded" style="font-size:16px;">refresh</span>
+        Refresh
+      </button>
+    </div>
+
+    <!-- Quick action: Ban a user -->
+    <div class="md-card" style="padding:20px;margin-bottom:16px;border-left:4px solid var(--md-error);">
+      <h3 style="font-weight:800;font-size:14px;margin:0 0 12px;color:var(--md-error);display:flex;align-items:center;gap:6px;">
+        <span class="material-symbols-rounded" style="font-size:18px;">gavel</span>
+        Ban a Player
+      </h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="md-field" style="flex:1;min-width:140px;margin-bottom:0;">
+          <span class="material-symbols-rounded field-icon">person</span>
+          <input type="text" id="ban-username-input" placeholder="Username" />
+        </div>
+        <div class="md-field" style="flex:2;min-width:200px;margin-bottom:0;">
+          <span class="material-symbols-rounded field-icon">edit_note</span>
+          <input type="text" id="ban-reason-input" placeholder="Reason (optional)" />
+        </div>
+        <button class="btn-filled danger" onclick="adminBan()" style="align-self:flex-end;padding:13px 20px;">
+          <span class="material-symbols-rounded" style="font-size:18px;">block</span>
+          Ban
+        </button>
+      </div>
+    </div>
+
+    <!-- User table -->
+    <div class="md-card" style="padding:0;overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1px solid var(--md-surface-variant);display:flex;align-items:center;justify-content:space-between;">
+        <p style="margin:0;font-weight:800;font-size:14px;">All Players</p>
+        <span id="user-count" style="font-size:12px;color:var(--md-on-surface-variant);font-weight:600;"></span>
+      </div>
+      <div id="user-table-body" style="min-height:80px;">
+        <!-- Rows injected by JS -->
+        <div style="padding:32px;text-align:center;color:var(--md-on-surface-variant);font-size:13px;font-weight:600;">
+          <span class="material-symbols-rounded" style="font-size:32px;display:block;margin-bottom:8px;opacity:0.4;">group</span>
+          Click Refresh to load players
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /staff-panel -->
 
 </main>
 
@@ -579,6 +642,13 @@
     document.getElementById('main-content').style.display = '';
     document.getElementById('auth-panel').style.display = 'none';
     document.getElementById('loading-screen').style.display = 'none';
+
+    // Staff-only UI
+    if (isStaff(user.username)) {
+      document.getElementById('staff-panel').style.display = '';
+      document.getElementById('nav-staff-badge').style.display = 'inline-flex';
+      loadUsers(); // auto-load table on login
+    }
   }
 
   // ---- Show auth ----
@@ -702,6 +772,126 @@
     } catch (err) {
       console.error('[register]', err);
       showToast('Network error.', 'wifi_off', true);
+    }
+  }
+
+  // ---- Staff list (mirrors api/admin.js — keep in sync) ----
+  const STAFF = ['neurotic_orchid'];
+  function isStaff(username) {
+    return STAFF.some(u => u.toLowerCase() === username?.toLowerCase());
+  }
+
+  // ---- Admin API helper ----
+  async function adminFetch(action, method = 'GET', body = null) {
+    const token = getSavedToken();
+    const opts = {
+      method,
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`/api/admin?action=${action}`, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Admin API error');
+    return data;
+  }
+
+  // ---- Load user table ----
+  async function loadUsers() {
+    const tbody = document.getElementById('user-table-body');
+    tbody.innerHTML = `<div style="padding:24px;text-align:center;">
+      <div style="width:28px;height:28px;border:3px solid var(--md-primary-container);border-top-color:var(--md-primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto;"></div>
+    </div>`;
+
+    try {
+      const { users } = await adminFetch('users');
+      document.getElementById('user-count').textContent = `${users.length} player${users.length !== 1 ? 's' : ''}`;
+
+      if (users.length === 0) {
+        tbody.innerHTML = `<div style="padding:32px;text-align:center;color:var(--md-on-surface-variant);font-size:13px;font-weight:600;">No players registered yet.</div>`;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => `
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--md-surface-variant);">
+          <span class="material-symbols-rounded" style="color:var(--md-on-surface-variant);font-size:22px;">
+            ${isStaff(u.username) ? 'shield' : 'person'}
+          </span>
+          <div style="flex:1;min-width:0;">
+            <p style="margin:0;font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              ${u.username}
+              ${isStaff(u.username) ? '<span style="font-size:11px;color:#E65100;font-weight:700;margin-left:6px;">STAFF</span>' : ''}
+            </p>
+            ${u.ban_reason ? `<p style="margin:0;font-size:12px;color:var(--md-error);">Reason: ${u.ban_reason}</p>` : ''}
+          </div>
+          <span class="chip ${u.status}">${u.status}</span>
+          ${!isStaff(u.username) ? `
+          <div style="display:flex;gap:6px;">
+            ${u.status === 'active'
+              ? `<button onclick="adminBanUser('${u.username}')" title="Ban" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--md-error-container);color:var(--md-error);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-rounded" style="font-size:18px;">block</span>
+                </button>`
+              : `<button onclick="adminUnbanUser('${u.username}')" title="Unban" style="width:32px;height:32px;border-radius:8px;border:none;background:#E8F5E9;color:#2E7D32;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                  <span class="material-symbols-rounded" style="font-size:18px;">check_circle</span>
+                </button>`
+            }
+            <button onclick="adminDeleteUser('${u.username}')" title="Delete account" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--md-surface-variant);color:var(--md-on-surface-variant);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+              <span class="material-symbols-rounded" style="font-size:18px;">delete</span>
+            </button>
+          </div>` : ''}
+        </div>
+      `).join('');
+    } catch (err) {
+      tbody.innerHTML = `<div style="padding:24px;text-align:center;color:var(--md-error);font-size:13px;font-weight:600;">${err.message}</div>`;
+    }
+  }
+
+  // ---- Ban via quick-action form ----
+  async function adminBan() {
+    const username = document.getElementById('ban-username-input').value.trim();
+    const reason = document.getElementById('ban-reason-input').value.trim();
+    if (!username) { showToast('Enter a username.', 'warning', true); return; }
+    await _doBan(username, reason);
+    document.getElementById('ban-username-input').value = '';
+    document.getElementById('ban-reason-input').value = '';
+  }
+
+  // ---- Ban via table row button ----
+  async function adminBanUser(username) {
+    const reason = prompt(`Ban reason for ${username} (leave blank for default):`);
+    if (reason === null) return; // cancelled
+    await _doBan(username, reason);
+  }
+
+  async function _doBan(username, reason) {
+    try {
+      const data = await adminFetch('ban', 'POST', { username, reason: reason || undefined });
+      showToast(data.message, 'gavel');
+      loadUsers();
+    } catch (err) {
+      showToast(err.message, 'error', true);
+    }
+  }
+
+  // ---- Unban ----
+  async function adminUnbanUser(username) {
+    try {
+      const data = await adminFetch('unban', 'POST', { username });
+      showToast(data.message, 'check_circle');
+      loadUsers();
+    } catch (err) {
+      showToast(err.message, 'error', true);
+    }
+  }
+
+  // ---- Delete ----
+  async function adminDeleteUser(username) {
+    if (!confirm(`Permanently delete account "${username}"? This cannot be undone.`)) return;
+    try {
+      const data = await adminFetch('delete', 'DELETE', { username });
+      showToast(data.message, 'delete_forever');
+      loadUsers();
+    } catch (err) {
+      showToast(err.message, 'error', true);
     }
   }
 
