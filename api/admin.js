@@ -1,23 +1,21 @@
 import { sql } from '@vercel/postgres';
 
-// ---- Hardcoded staff list ----
-// Add more usernames here as needed (case-insensitive checked below)
-const STAFF = ['neurotic_orchid'];
+// Role hierarchy — higher index = more power
+const ROLE_HIERARCHY = ['member', 'builder', 'developer', 'mod', 'admin', 'owner'];
+const STAFF_ROLES = ['mod', 'admin', 'owner']; // can access admin panel
 
-function isStaff(username) {
-  return STAFF.some(u => u.toLowerCase() === username?.toLowerCase());
+function roleRank(role) {
+  const idx = ROLE_HIERARCHY.indexOf(role);
+  return idx === -1 ? 0 : idx;
 }
 
-// ---- Auth helper ----
-// Reuses the same base64(username:id) token from auth.js / register.js
 async function resolveStaff(req, res) {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader?.startsWith('Bearer ')) {
+  const auth = req.headers['authorization'];
+  if (!auth?.startsWith('Bearer ')) {
     res.status(401).json({ error: 'Missing Authorization header.' });
     return null;
   }
-
-  const token = authHeader.slice(7).trim();
+  const token = auth.slice(7).trim();
   let username, id;
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
@@ -28,99 +26,111 @@ async function resolveStaff(req, res) {
     return null;
   }
 
-  if (!isStaff(username)) {
-    res.status(403).json({ error: 'Forbidden. You are not staff.' });
-    return null;
-  }
-
-  // Verify token against DB (prevent forged staff tokens)
   const { rows, rowCount } = await sql`
-    SELECT id, username FROM users
-    WHERE id = ${Number(id)} AND username = ${username}
-    LIMIT 1
+    SELECT id, username, role FROM users
+    WHERE id = ${Number(id)} AND username = ${username} LIMIT 1
   `;
-  if (rowCount === 0) {
-    res.status(401).json({ error: 'Session invalid.' });
+  if (rowCount === 0) { res.status(401).json({ error: 'Session invalid.' }); return null; }
+
+  const user = rows[0];
+  if (!STAFF_ROLES.includes(user.role)) {
+    res.status(403).json({ error: 'Forbidden. Staff only.' });
     return null;
   }
-
-  return rows[0];
+  return user;
 }
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
   if (req.method === 'OPTIONS') return res.status(204).end();
 
   const staff = await resolveStaff(req, res);
-  if (!staff) return; // resolveStaff already sent the error response
+  if (!staff) return;
 
   const { action } = req.query;
 
-  // ---- GET /api/admin?action=users ----
-  // Returns all users (id, username, status, ban_reason) — no password hashes
+  // ---- GET users ----
   if (req.method === 'GET' && action === 'users') {
     const { rows } = await sql`
-      SELECT id, username, status, ban_reason
-      FROM users
-      ORDER BY id ASC
+      SELECT id, username, role, status, ban_reason, avatar_url, bio
+      FROM users ORDER BY
+        CASE role
+          WHEN 'owner' THEN 1 WHEN 'admin' THEN 2 WHEN 'mod' THEN 3
+          WHEN 'developer' THEN 4 WHEN 'builder' THEN 5 ELSE 6
+        END, username ASC
     `;
     return res.status(200).json({ users: rows });
   }
 
-  // ---- POST /api/admin?action=ban ----
-  // Body: { username, reason }
+  // ---- POST ban ----
   if (req.method === 'POST' && action === 'ban') {
     const { username, reason } = req.body ?? {};
     if (!username) return res.status(400).json({ error: 'Username required.' });
 
-    if (isStaff(username)) {
-      return res.status(400).json({ error: 'Cannot ban another staff member.' });
-    }
-
-    const { rowCount } = await sql`
-      UPDATE users
-      SET status = 'banned', ban_reason = ${reason ?? 'No reason provided.'}
-      WHERE LOWER(username) = LOWER(${username})
-    `;
+    const { rows, rowCount } = await sql`SELECT role FROM users WHERE LOWER(username) = LOWER(${username}) LIMIT 1`;
     if (rowCount === 0) return res.status(404).json({ error: 'User not found.' });
 
+    // Can't ban someone of equal or higher rank
+    if (roleRank(rows[0].role) >= roleRank(staff.role)) {
+      return res.status(403).json({ error: `You can't ban someone with role: ${rows[0].role}.` });
+    }
+
+    await sql`UPDATE users SET status = 'banned', ban_reason = ${reason ?? 'No reason provided.'} WHERE LOWER(username) = LOWER(${username})`;
     return res.status(200).json({ message: `${username} has been banned.` });
   }
 
-  // ---- POST /api/admin?action=unban ----
-  // Body: { username }
+  // ---- POST unban ----
   if (req.method === 'POST' && action === 'unban') {
     const { username } = req.body ?? {};
     if (!username) return res.status(400).json({ error: 'Username required.' });
-
-    const { rowCount } = await sql`
-      UPDATE users
-      SET status = 'active', ban_reason = NULL
-      WHERE LOWER(username) = LOWER(${username})
-    `;
+    const { rowCount } = await sql`UPDATE users SET status = 'active', ban_reason = NULL WHERE LOWER(username) = LOWER(${username})`;
     if (rowCount === 0) return res.status(404).json({ error: 'User not found.' });
-
     return res.status(200).json({ message: `${username} has been unbanned.` });
   }
 
-  // ---- DELETE /api/admin?action=delete ----
-  // Body: { username }
+  // ---- POST setrole ----
+  if (req.method === 'POST' && action === 'setrole') {
+    const { username, role } = req.body ?? {};
+    if (!username || !role) return res.status(400).json({ error: 'Username and role required.' });
+    if (!ROLE_HIERARCHY.includes(role)) {
+      return res.status(400).json({ error: `Invalid role. Valid: ${ROLE_HIERARCHY.join(', ')}` });
+    }
+
+    const { rows, rowCount } = await sql`SELECT role FROM users WHERE LOWER(username) = LOWER(${username}) LIMIT 1`;
+    if (rowCount === 0) return res.status(404).json({ error: 'User not found.' });
+
+    const targetCurrentRank = roleRank(rows[0].role);
+    const targetNewRank = roleRank(role);
+    const staffRank = roleRank(staff.role);
+
+    // Can't touch someone of equal/higher rank
+    if (targetCurrentRank >= staffRank) {
+      return res.status(403).json({ error: `Can't modify someone with role: ${rows[0].role}.` });
+    }
+    // Can't assign a role equal to or above your own (only owner can make admins)
+    if (targetNewRank >= staffRank) {
+      return res.status(403).json({ error: `Can't assign role: ${role}. Exceeds your rank.` });
+    }
+
+    await sql`UPDATE users SET role = ${role} WHERE LOWER(username) = LOWER(${username})`;
+    return res.status(200).json({ message: `${username} is now ${role}.` });
+  }
+
+  // ---- DELETE account ----
   if (req.method === 'DELETE' && action === 'delete') {
     const { username } = req.body ?? {};
     if (!username) return res.status(400).json({ error: 'Username required.' });
 
-    if (isStaff(username)) {
-      return res.status(400).json({ error: 'Cannot delete a staff account.' });
-    }
-
-    const { rowCount } = await sql`
-      DELETE FROM users WHERE LOWER(username) = LOWER(${username})
-    `;
+    const { rows, rowCount } = await sql`SELECT role FROM users WHERE LOWER(username) = LOWER(${username}) LIMIT 1`;
     if (rowCount === 0) return res.status(404).json({ error: 'User not found.' });
 
+    if (roleRank(rows[0].role) >= roleRank(staff.role)) {
+      return res.status(403).json({ error: `Can't delete someone with role: ${rows[0].role}.` });
+    }
+
+    await sql`DELETE FROM users WHERE LOWER(username) = LOWER(${username})`;
     return res.status(200).json({ message: `${username} has been deleted.` });
   }
 
