@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloudrend SMP — Auth</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Google Sans', 'Nunito', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1040;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-blob {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      opacity: 0.33; pointer-events: none;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(30px,-20px) scale(1.08); } }
+
+    .stars { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+    .star { position: absolute; background: #fff; border-radius: 50%; opacity: 0; animation: twinkle var(--d) ease-in-out var(--delay) infinite alternate; }
+    @keyframes twinkle { from { opacity:0; } to { opacity:0.65; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:none; } }
+    @keyframes stepIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:none; } }
+
+    /* ── Wrapper ── */
+    /* Login: single card. Register: two-panel. Transition via JS class. */
+    .wrapper {
+      position: relative; z-index: 10;
+      border-radius: 8px; overflow: hidden;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.55);
+      animation: slideUp 0.3s ease both;
+      display: grid;
+      grid-template-columns: 1fr; /* login default */
+      width: 100%; max-width: 420px;
+      transition: max-width 0.35s ease;
+      margin: 24px;
+    }
+    .wrapper.reg-mode {
+      grid-template-columns: 1fr 420px;
+      max-width: 840px;
+    }
+
+    /* ── Left info panel (register only) ── */
+    .info-panel {
+      background: linear-gradient(135deg, #5865f2 0%, #7c3aed 60%, #a855f7 100%);
+      padding: 48px 36px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 28px;
+    }
+    .wrapper.reg-mode .info-panel { display: flex; }
+    .info-panel h2 { font-size: 26px; font-weight: 700; color: #fff; line-height: 1.2; }
+    .info-panel p { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.7; }
+    .info-feature { display: flex; align-items: flex-start; gap: 12px; }
+    .info-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+    .info-feature-text { font-size: 12px; color: rgba(255,255,255,0.9); line-height: 1.6; }
+    .info-feature-text strong { color: #fff; display: block; font-size: 13px; margin-bottom: 1px; }
+    .step-dots { display: flex; gap: 7px; margin-top: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); transition: background 0.3s, width 0.3s; }
+    .dot.active { background: #fff; width: 22px; border-radius: 4px; }
+
+    /* ── Right form panel ── */
+    .form-panel {
+      background: #2b2d31;
+      padding: 36px 36px 40px;
+      display: flex;
+      flex-direction: column;
+      min-height: 520px;
+    }
+
+    /* ── Go back / switch ── */
+    .top-action {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; color: #b5bac1;
+      background: #1e1f22; border: none; border-radius: 4px;
+      padding: 7px 14px; cursor: pointer; margin-bottom: 28px;
+      transition: background 0.15s, color 0.15s; text-decoration: none;
+      width: fit-content;
+    }
+    .top-action:hover { background: #313338; color: #fff; }
+    .top-action svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ── Steps ── */
+    .view { display: none; flex-direction: column; flex: 1; }
+    .view.active { display: flex; animation: stepIn 0.22s ease both; }
+
+    h1 { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 5px; }
+    .subtitle { font-size: 13px; color: #b5bac1; margin-bottom: 22px; line-height: 1.5; }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 14px; }
+    label { display: block; font-size: 11px; font-weight: 700; color: #b5bac1; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+    label .req { color: #f23f43; margin-left: 2px; }
+    input {
+      width: 100%; background: #1e1f22; border: 1px solid #1e1f22;
+      border-radius: 4px; padding: 10px 12px;
+      font-family: 'Google Sans','Nunito',sans-serif; font-size: 15px;
+      color: #dbdee1; outline: none; transition: border-color 0.15s;
+    }
+    input:focus { border-color: #5865f2; }
+    input::placeholder { color: #4e5058; }
+    .hint { font-size: 11px; color: #6d6f78; margin-top: 4px; line-height: 1.5; }
+    .hint.red { color: #f23f43; }
+
+    /* ── Strength bar ── */
+    .strength-bar { height: 3px; border-radius: 99px; background: #1e1f22; margin-top: 5px; overflow: hidden; }
+    .strength-fill { height: 100%; border-radius: 99px; transition: width 0.3s, background 0.3s; width: 0%; }
+
+    /* ── Buttons ── */
+    .btn-main {
+      width: 100%; background: #5865f2; color: #fff; border: none;
+      border-radius: 4px; padding: 12px;
+      font-family: 'Google Sans','Nunito',sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-main:hover { background: #4752c4; }
+    .btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-back {
+      background: #1e1f22; color: #b5bac1; border: none;
+      border-radius: 4px; padding: 12px 20px;
+      font-family: 'Google Sans','Nunito',sans-serif; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+    .btn-back:hover { background: #313338; color: #fff; }
+
+    /* ── Error / info boxes ── */
+    .error-box {
+      background: rgba(242,63,67,0.15); border: 1px solid rgba(242,63,67,0.4);
+      border-radius: 4px; padding: 10px 13px; font-size: 13px; color: #f23f43;
+      margin-bottom: 14px; display: none;
+    }
+    .error-box.show { display: block; }
+    .info-box {
+      background: rgba(88,101,242,0.14); border: 1px solid rgba(88,101,242,0.28);
+      border-radius: 5px; padding: 11px 13px; font-size: 12px; color: #b5bac1;
+      line-height: 1.6; margin-bottom: 18px;
+    }
+    .info-box code { background: rgba(255,255,255,0.1); border-radius: 3px; padding: 1px 5px; font-size: 12px; color: #a8b4f8; }
+
+    /* ── Avatar preview ── */
+    .avatar-preview {
+      display: none; align-items: center; gap: 12px;
+      background: #1e1f22; border-radius: 6px; padding: 11px 13px; margin-bottom: 16px;
+    }
+    .avatar-preview img { border-radius: 50%; object-fit: cover; }
+
+    /* ── Bottom links ── */
+    .switch-link { font-size: 13px; color: #b5bac1; margin-top: 14px; text-align: center; }
+    .switch-link a, .switch-link button { color: #00a8fc; text-decoration: none; background: none; border: none; font: inherit; cursor: pointer; padding: 0; }
+    .switch-link a:hover, .switch-link button:hover { text-decoration: underline; }
+
+    .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 0; color: #4e5058; font-size: 12px; font-weight: 600; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #3f4147; }
+
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+    @media (max-width: 680px) {
+      .wrapper.reg-mode { grid-template-columns: 1fr; max-width: 420px; }
+      .info-panel { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Blobs -->
+<div class="bg-blob" style="width:500px;height:500px;background:#5865f2;top:-100px;left:-150px;animation-duration:14s;"></div>
+<div class="bg-blob" style="width:400px;height:400px;background:#7c3aed;bottom:-80px;right:-100px;animation-duration:10s;animation-delay:-4s;"></div>
+<div class="bg-blob" style="width:300px;height:300px;background:#a855f7;top:40%;left:40%;animation-duration:16s;animation-delay:-2s;"></div>
+<div class="stars" id="stars"></div>
+
+<div class="wrapper" id="wrapper">
+
+  <!-- LEFT: info panel (register mode only) -->
+  <div class="info-panel">
+    <div>
+      <h2>Join Cloudrend SMP</h2>
+      <p>A newly launched cracked SMP with tons of features. Cross-platform, custom world, growing community.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="info-feature"><div class="info-icon">🌍</div><div class="info-feature-text"><strong>Java &amp; Bedrock</strong>Cross-platform from day one.</div></div>
+      <div class="info-feature"><div class="info-icon">🏡</div><div class="info-feature-text"><strong>20 Free Home Slots</strong>No premium required.</div></div>
+      <div class="info-feature"><div class="info-icon">🐾</div><div class="info-feature-text"><strong>Mobnet + Infinite Trades</strong>Catch mobs, trade forever, protect your land.</div></div>
+      <div class="info-feature"><div class="info-icon">🎨</div><div class="info-feature-text"><strong>Full Customization</strong>Gradient names, chat colors, icons &amp; more.</div></div>
+    </div>
+    <div>
+      <p style="font-size:11px;color:rgba(255,255,255,0.45);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px;">Step <span id="step-label">1</span> of 2</p>
+      <div class="step-dots"><div class="dot active" id="dot-1"></div><div class="dot" id="dot-2"></div></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: form panel -->
+  <div class="form-panel">
+
+    <!-- ═══ VIEW: LOGIN ═══ -->
+    <div class="view active" id="view-login">
+      <a href="/" class="top-action">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Go back
+      </a>
+      <h1 style="text-align:center;">Welcome back!</h1>
+      <p class="subtitle" style="text-align:center;">We're so excited to see you again!</p>
+
+      <div class="error-box" id="login-error"></div>
+
+      <div class="field">
+        <label>Username <span class="req">*</span></label>
+        <input type="text" id="login-user" placeholder="Your Minecraft username" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>Password <span class="req">*</span></label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+
+      <button class="btn-main" id="login-btn" onclick="doLogin()" style="margin-top:4px;">Log In</button>
+
+      <div class="divider">or</div>
+      <p class="switch-link">Need an account? <button onclick="showRegStep1()">Register</button></p>
+    </div>
+
+    <!-- ═══ VIEW: REGISTER STEP 1 ═══ -->
+    <div class="view" id="view-reg1">
+      <button class="top-action" onclick="showLogin()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Go back
+      </button>
+      <h1>Create your account</h1>
+      <p class="subtitle">Use the same username &amp; password you used in-game with <code style="background:rgba(255,255,255,0.08);border-radius:3px;padding:1px 5px;font-size:12px;color:#a8b4f8;">/register</code></p>
+
+      <div class="info-box">
+        📋 Join the server first and run:<br/>
+        <code>/register yourpassword yourpassword</code><br/>
+        Then come back and use the same password below.
+      </div>
+
+      <div class="error-box" id="reg1-error"></div>
+
+      <div class="field">
+        <label>Minecraft Username <span class="req">*</span></label>
+        <input type="text" id="reg-user" placeholder="e.g. Steve" autocomplete="username" />
+        <p class="hint">3–16 chars, letters/numbers/underscores only.</p>
+      </div>
+      <div class="field">
+        <label>Password <span class="req">*</span></label>
+        <input type="password" id="reg-pass" placeholder="••••••••" autocomplete="new-password"
+          oninput="checkStrength(this.value)" />
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <p class="hint" id="strength-label">Min. 8 characters</p>
+      </div>
+      <div class="field">
+        <label>Confirm Password <span class="req">*</span></label>
+        <input type="password" id="reg-confirm" placeholder="••••••••" autocomplete="new-password" />
+      </div>
+
+      <button class="btn-main" onclick="goStep2()" style="margin-top:auto;">Continue →</button>
+      <p class="switch-link">Already have an account? <button onclick="showLogin()">Log in</button></p>
+    </div>
+
+    <!-- ═══ VIEW: REGISTER STEP 2 ═══ -->
+    <div class="view" id="view-reg2">
+      <button class="top-action" onclick="goStep1()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <h1>Set up your profile</h1>
+      <p class="subtitle">Customize how you appear in the hub. You can always change this later.</p>
+
+      <div class="error-box" id="reg2-error"></div>
+
+      <div class="field">
+        <label>Avatar URL <span style="color:#6d6f78;font-weight:400;text-transform:none;">(optional)</span></label>
+        <input type="url" id="reg-avatar" placeholder="https://i.imgur.com/yourimage.png"
+          oninput="updateAvatarPreview()" />
+        <p class="hint">Paste a direct image link (imgur, Discord CDN, etc.)</p>
+      </div>
+
+      <div class="avatar-preview" id="avatar-preview">
+        <img id="preview-img" src="" width="44" height="44" />
+        <div>
+          <p id="preview-name" style="font-weight:700;font-size:14px;color:#fff;"></p>
+          <p style="font-size:12px;color:#b5bac1;">Preview</p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Bio <span style="color:#6d6f78;font-weight:400;text-transform:none;">(optional, max 100 chars)</span></label>
+        <input type="text" id="reg-bio" placeholder="Something about yourself…" maxlength="100"
+          oninput="document.getElementById('bio-count').textContent=this.value.length+'/100'" />
+        <p class="hint"><span id="bio-count">0</span>/100</p>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:auto;">
+        <button class="btn-back" onclick="goStep1()">← Back</button>
+        <button class="btn-main" id="submit-btn" onclick="doRegister()" style="flex:1;">Create Account</button>
+      </div>
+      <p class="switch-link">Already have an account? <button onclick="showLogin()">Log in</button></p>
+    </div>
+
+  </div><!-- /form-panel -->
+</div><!-- /wrapper -->
+
+<script>
+  // ── Stars ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${1.5+Math.random()*3}s;--delay:${Math.random()*4}s;width:${Math.random()>.8?4:2}px;height:${Math.random()>.8?4:2}px;`;
+    starsEl.appendChild(s);
+  }
+
+  // ── Redirect if already logged in ──
+  window.onload = async () => {
+    const token = localStorage.getItem('smp_token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/me', { headers: { 'Authorization': `Bearer ${token}` } });
+      if (res.ok) { const u = await res.json(); if (u.status !== 'banned') window.location.href = '/portal.html'; }
+    } catch {}
+
+    // Auto-switch to register if ?mode=register
+    if (new URLSearchParams(location.search).get('mode') === 'register') showRegStep1();
+  };
+
+  // ── View switching ──
+  const views = ['view-login','view-reg1','view-reg2'];
+  function show(id) {
+    views.forEach(v => document.getElementById(v).classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function showLogin() {
+    document.getElementById('wrapper').classList.remove('reg-mode');
+    show('view-login');
+    history.replaceState(null,'',location.pathname);
+  }
+
+  function showRegStep1() {
+    document.getElementById('wrapper').classList.add('reg-mode');
+    setDots(1);
+    show('view-reg1');
+    history.replaceState(null,'','?mode=register');
+  }
+
+  function goStep2() {
+    const user = document.getElementById('reg-user').value.trim();
+    const pass = document.getElementById('reg-pass').value;
+    const conf = document.getElementById('reg-confirm').value;
+    const err = document.getElementById('reg1-error');
+    err.classList.remove('show');
+
+    if (!user || !pass || !conf) { err.textContent = 'Please fill in all fields.'; err.classList.add('show'); return; }
+    if (!/^[a-zA-Z0-9_]{3,16}$/.test(user)) { err.textContent = 'Username must be 3–16 chars, letters/numbers/underscores only.'; err.classList.add('show'); return; }
+    if (pass.length < 8) { err.textContent = 'Password must be at least 8 characters.'; err.classList.add('show'); return; }
+    if (pass !== conf) { err.textContent = 'Passwords do not match.'; err.classList.add('show'); return; }
+
+    document.getElementById('preview-name').textContent = user;
+    setDots(2);
+    show('view-reg2');
+  }
+
+  function goStep1() {
+    setDots(1);
+    show('view-reg1');
+  }
+
+  function setDots(step) {
+    document.getElementById('dot-1').classList.toggle('active', step >= 1);
+    document.getElementById('dot-2').classList.toggle('active', step >= 2);
+    document.getElementById('step-label').textContent = step;
+  }
+
+  // ── Avatar preview ──
+  function updateAvatarPreview() {
+    const url = document.getElementById('reg-avatar').value.trim();
+    const preview = document.getElementById('avatar-preview');
+    const img = document.getElementById('preview-img');
+    if (url) {
+      img.src = url;
+      img.onload = () => { preview.style.display = 'flex'; };
+      img.onerror = () => { preview.style.display = 'none'; };
+    } else {
+      preview.style.display = 'none';
+    }
+  }
+
+  // ── Password strength ──
+  function checkStrength(val) {
+    const fill = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (val.length >= 12) score++;
+    if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const levels = [
+      { w:'0%',   bg:'#f23f43', t:'Too short' },
+      { w:'25%',  bg:'#f23f43', t:'Weak' },
+      { w:'50%',  bg:'#faa81a', t:'Fair' },
+      { w:'75%',  bg:'#23a55a', t:'Good' },
+      { w:'100%', bg:'#23a55a', t:'Strong 💪' },
+    ];
+    const lvl = levels[Math.min(score, 4)];
+    fill.style.width = val.length === 0 ? '0%' : lvl.w;
+    fill.style.background = lvl.bg;
+    label.textContent = val.length === 0 ? 'Min. 8 characters' : lvl.t;
+    label.className = 'hint' + (score < 2 && val.length > 0 ? ' red' : '');
+  }
+
+  // ── Spinner helpers ──
+  function setLoading(btnId, on) {
+    const btn = document.getElementById(btnId);
+    if (on) { btn._orig = btn.innerHTML; btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true; }
+    else { btn.innerHTML = btn._orig; btn.disabled = false; }
+  }
+
+  // ── Login ──
+  async function doLogin() {
+    const err = document.getElementById('login-error');
+    err.classList.remove('show');
+    const username = document.getElementById('login-user').value.trim();
+    const password = document.getElementById('login-pass').value;
+    if (!username || !password) { err.textContent = 'Please fill in all fields.'; err.classList.add('show'); return; }
+    setLoading('login-btn', true);
+    try {
+      const res = await fetch('/api/auth', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,password}) });
+      const data = await res.json();
+      if (!res.ok) { err.textContent = data.error || 'Login failed. Check your credentials.'; err.classList.add('show'); return; }
+      localStorage.setItem('smp_token', data.token);
+      localStorage.setItem('smp_user', JSON.stringify(data.user));
+      window.location.href = '/portal.html';
+    } catch { err.textContent = 'Network error. Check your connection.'; err.classList.add('show'); }
+    finally { setLoading('login-btn', false); }
+  }
+
+  // ── Register ──
+  async function doRegister() {
+    const err = document.getElementById('reg2-error');
+    err.classList.remove('show');
+    const username = document.getElementById('reg-user').value.trim();
+    const password = document.getElementById('reg-pass').value;
+    const avatar_url = document.getElementById('reg-avatar').value.trim();
+    const bio = document.getElementById('reg-bio').value.trim();
+    setLoading('submit-btn', true);
+    try {
+      const res = await fetch('/api/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({username,password}) });
+      const data = await res.json();
+      if (res.status === 409) { err.textContent = 'Username already taken. Try another.'; err.classList.add('show'); return; }
+      if (!res.ok) { err.textContent = data.error || 'Registration failed.'; err.classList.add('show'); return; }
+      localStorage.setItem('smp_token', data.token);
+      localStorage.setItem('smp_user', JSON.stringify(data.user));
+      // Save optional profile fields
+      if (avatar_url || bio) {
+        await fetch('/api/profile', {
+          method:'PATCH',
+          headers:{'Authorization':`Bearer ${data.token}`,'Content-Type':'application/json'},
+          body:JSON.stringify({ avatar_url: avatar_url||undefined, bio: bio||undefined }),
+        }).catch(()=>{});
+      }
+      window.location.href = '/portal.html';
+    } catch { err.textContent = 'Network error. Check your connection.'; err.classList.add('show'); }
+    finally { setLoading('submit-btn', false); }
+  }
+</script>
+</body>
+</html>
