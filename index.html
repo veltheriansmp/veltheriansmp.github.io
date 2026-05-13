@@ -71,13 +71,16 @@
 <nav>
   <div style="max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;">
     <span style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--md-primary);">Cloudrend SMP</span>
-    <button class="btn-outlined" onclick="document.getElementById('auth-section').scrollIntoView({behavior:'smooth'})" style="padding:7px 18px;font-size:13px;">
-      <span class="material-symbols-rounded" style="font-size:16px;">login</span>Login
-    </button>
+    <div style="display:flex;gap:8px;">
+      <a href="/auth.html?mode=register" class="btn-outlined" style="padding:7px 18px;font-size:13px;text-decoration:none;">Register</a>
+      <a href="/auth.html" class="btn-filled" style="padding:7px 18px;font-size:13px;text-decoration:none;">
+        <span class="material-symbols-rounded" style="font-size:16px;">login</span>Login
+      </a>
+    </div>
   </div>
 </nav>
 
-<div class="landing-grid" style="max-width:1200px;margin:0 auto;padding:40px 24px;display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start;">
+<div class="landing-grid" style="max-width:900px;margin:0 auto;padding:40px 24px;display:grid;grid-template-columns:1fr;gap:32px;align-items:start;">
 
   <!-- LEFT: public content -->
   <div>
@@ -99,32 +102,184 @@
       </div>
     </div>
 
-    <!-- What we offer -->
-    <h2 class="fu2" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin:0 0 16px;">What we offer?</h2>
-    <div class="fu2" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;margin-bottom:28px;">
-      <div class="md-card" style="padding:20px;">
-        <div style="width:44px;height:44px;border-radius:12px;background:var(--md-primary-container);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <span class="material-symbols-rounded" style="color:var(--md-primary);">inventory_2</span>
-        </div>
-        <h3 style="font-weight:800;font-size:15px;margin:0 0 4px;">Starter Kit!</h3>
-        <p style="font-size:11px;color:var(--md-on-surface-variant);margin:0 0 8px;font-weight:700;">from Arthur &amp; Toolkit</p>
-        <p style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Allows you to properly prepare for each big event. Drops your iron to start out — thank you for joining the server!</p>
+    <!-- Features & Info -->
+    <h2 class="fu2" style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin:0 0 4px;">Features &amp; Info</h2>
+    <p class="fu2" style="font-size:13px;color:var(--md-on-surface-variant);font-weight:600;margin:0 0 16px;">Everything Cloudrend SMP has to offer</p>
+
+    <!-- Category: Getting Started -->
+    <div class="fu2" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--md-primary);"></div>
+        <p style="font-size:11px;font-weight:800;color:var(--md-primary);text-transform:uppercase;letter-spacing:0.6px;">Getting Started</p>
       </div>
-      <div class="md-card" style="padding:20px;">
-        <div style="width:44px;height:44px;border-radius:12px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <span class="material-symbols-rounded" style="color:#1565C0;">diamond</span>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;">
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:var(--md-primary);font-size:20px;">devices</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">Java &amp; Bedrock</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Playable on both Java and Bedrock — cross-platform from day one.</p>
         </div>
-        <h3 style="font-weight:800;font-size:15px;margin:0 0 4px;">Starter Kit!</h3>
-        <p style="font-size:11px;color:var(--md-on-surface-variant);margin:0 0 8px;font-weight:700;">from Arthur &amp; Toolkit</p>
-        <p style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Ships your iron ration to carry you through the first season — no grinding from nothing on day one.</p>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#2E7D32;font-size:20px;">how_to_reg</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/register</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Cracked server — register to play. Bedrock players get auto register &amp; login.</p>
+          <code style="display:block;margin-top:6px;background:#F1F8E9;border-radius:6px;padding:4px 8px;font-size:11px;color:#2E7D32;">/register examplepassword123</code>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#1565C0;font-size:20px;">login</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/login</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Already registered? Login every session with your password.</p>
+          <code style="display:block;margin-top:6px;background:#E3F2FD;border-radius:6px;padding:4px 8px;font-size:11px;color:#1565C0;">/login yourpassword</code>
+        </div>
       </div>
-      <div class="md-card" style="padding:20px;">
-        <div style="width:44px;height:44px;border-radius:12px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-          <span class="material-symbols-rounded" style="color:#2E7D32;">forest</span>
+    </div>
+
+    <!-- Category: World -->
+    <div class="fu2" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#059669;"></div>
+        <p style="font-size:11px;font-weight:800;color:#059669;text-transform:uppercase;letter-spacing:0.6px;">World</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;">
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#D1FAE5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#059669;font-size:20px;">forest</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">Custom Biomes</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Custom biomes and new structures scattered across the Overworld.</p>
         </div>
-        <h3 style="font-weight:800;font-size:15px;margin:0 0 4px;">Starter Kit!</h3>
-        <p style="font-size:11px;color:var(--md-on-surface-variant);margin:0 0 8px;font-weight:700;">from Arthur &amp; Toolkit</p>
-        <p style="font-size:13px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Drops your iron and pushes you to the nearest biome — a thank you for joining the server.</p>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FCE4EC;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#C62828;font-size:20px;">whatshot</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">Buffed Ender Dragon</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">The Ender Dragon is significantly harder to kill — come prepared.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FFF9C4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#F9A825;font-size:20px;">catching_pokemon</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">Mobnet</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Catch and carry mobs — except Warden, Wither, and Ender Dragon.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category: Customization -->
+    <div class="fu2" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#7C3AED;"></div>
+        <p style="font-size:11px;font-weight:800;color:#7C3AED;text-transform:uppercase;letter-spacing:0.6px;">Customization</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;">
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#7C3AED;font-size:20px;">gradient</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/gradient</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Change your name color with a gradient — pick whatever colors you like.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E8EAF6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#3949AB;font-size:20px;">palette</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/chatcolor</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Change your chat color to whatever suits you best.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FFF3E0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#E65100;font-size:20px;">sentiment_satisfied</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/icons</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Add an icon to your nametag — choose whichever fits your vibe.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category: Quality of Life -->
+    <div class="fu2" style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="width:6px;height:6px;border-radius:50%;background:#0891B2;"></div>
+        <p style="font-size:11px;font-weight:800;color:#0891B2;text-transform:uppercase;letter-spacing:0.6px;">Quality of Life</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;">
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E0F7FA;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#0891B2;font-size:20px;">home</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">20 Home Slots</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">20 free home slots for every player — no premium needed.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#2E7D32;font-size:20px;">storefront</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">Infinite Villager Trade</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Trade as many times as you want — no restock waiting ever.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FFF9C4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#F9A825;font-size:20px;">currency_exchange</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/string</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Fill your inventory with string and trade with the Fletcher for easy emeralds.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#E8EAF6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#3949AB;font-size:20px;">teleport</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/tpa</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Teleport to friends with /tpa, /tpaccept, and /tpahere.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#FCE4EC;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#C62828;font-size:20px;">lock</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/chestprotect</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Lock your chests from thieves — your stuff stays yours.</p>
+        </div>
+        <div class="md-card" style="padding:16px 18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#D1FAE5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <span class="material-symbols-rounded" style="color:#059669;font-size:20px;">map</span>
+            </div>
+            <h3 style="font-weight:800;font-size:14px;margin:0;">/lands</h3>
+          </div>
+          <p style="font-size:12px;color:var(--md-on-surface-variant);line-height:1.6;margin:0;">Claim and protect your land by chunk. Use F3+B on Java or a chunk border texture pack on Bedrock. Use /lands help for more.</p>
+        </div>
       </div>
     </div>
 
@@ -140,67 +295,6 @@
       <button class="btn-outlined" onclick="navigator.clipboard.writeText('cloudrend.playwithbao.com');showToast('Copied!','content_copy')" style="padding:8px 16px;font-size:13px;">
         <span class="material-symbols-rounded" style="font-size:16px;">content_copy</span>Copy
       </button>
-    </div>
-  </div>
-
-  <!-- RIGHT: Auth panel -->
-  <div id="auth-section" class="auth-sticky" style="position:sticky;top:88px;">
-    <div class="md-card-elevated fu" style="padding:28px 24px;">
-      <div style="text-align:center;margin-bottom:20px;">
-        <div style="width:52px;height:52px;border-radius:16px;background:var(--md-primary);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
-          <span class="material-symbols-rounded" style="color:#fff;font-size:26px;">dns</span>
-        </div>
-        <h2 style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin:0;color:var(--md-primary);">Cloudrend SMP</h2>
-        <p style="font-size:12px;color:var(--md-on-surface-variant);margin:4px 0 0;font-weight:600;">Hub Portal</p>
-      </div>
-
-      <div class="tab-bar">
-        <div class="tab active" id="tab-login" onclick="switchTab('login')">Login</div>
-        <div class="tab" id="tab-register" onclick="switchTab('register')">Register</div>
-      </div>
-
-      <!-- LOGIN -->
-      <div id="form-login">
-        <p style="font-size:13px;color:var(--md-on-surface-variant);margin:0 0 14px;font-weight:600;line-height:1.5;">
-          Login with your Cloudrend SMP hub to access in-game features, live chat, and more.
-        </p>
-        <div class="md-field">
-          <span class="material-symbols-rounded fi">person</span>
-          <input type="text" id="login-username" placeholder="Username" autocomplete="username" />
-        </div>
-        <div class="md-field">
-          <span class="material-symbols-rounded fi">lock</span>
-          <input type="password" id="login-password" placeholder="Password" autocomplete="current-password" />
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <button class="btn-filled" id="login-btn" style="flex:1;justify-content:center;" onclick="handleLogin()">Login</button>
-          <button class="btn-outlined" style="padding:10px 16px;" onclick="switchTab('register')">Register</button>
-        </div>
-      </div>
-
-      <!-- REGISTER -->
-      <div id="form-register" style="display:none;">
-        <div style="background:#F8F5FF;border-radius:12px;padding:12px 14px;margin-bottom:14px;">
-          <p style="font-size:12px;color:var(--md-on-surface-variant);margin:0 0 6px;font-weight:700;display:flex;align-items:center;gap:4px;">
-            <span class="material-symbols-rounded" style="font-size:15px;color:var(--md-primary);">info</span>
-            Register in-game first!
-          </p>
-          <p style="font-size:12px;color:var(--md-on-surface-variant);margin:0 0 6px;line-height:1.5;">Join the server and run:</p>
-          <code style="display:block;background:#E8DEF8;border-radius:8px;padding:6px 10px;font-size:12px;color:var(--md-primary);">/register &lt;password&gt; &lt;password&gt;</code>
-          <p style="font-size:11px;color:var(--md-on-surface-variant);margin:6px 0 0;line-height:1.5;">Use the same password here as in-game.</p>
-        </div>
-        <div class="md-field">
-          <span class="material-symbols-rounded fi">person</span>
-          <input type="text" id="reg-username" placeholder="Minecraft username" autocomplete="username" />
-        </div>
-        <div class="md-field">
-          <span class="material-symbols-rounded fi">lock</span>
-          <input type="password" id="reg-password" placeholder="Password (min. 8 chars)" autocomplete="new-password" />
-        </div>
-        <button class="btn-filled" id="reg-btn" style="width:100%;justify-content:center;" onclick="handleRegister()">
-          <span class="material-symbols-rounded" style="font-size:18px;">how_to_reg</span>Continue →
-        </button>
-      </div>
     </div>
   </div>
 
