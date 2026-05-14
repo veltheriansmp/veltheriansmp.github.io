@@ -9,6 +9,35 @@ const pusher = new Pusher({
   useTLS: true
 });
 
+const DISCORD_CHAT_WEBHOOK = process.env.DISCORD_CHAT_WEBHOOK;
+
+async function sendDiscordWebhook(username, source, content) {
+  if (!DISCORD_CHAT_WEBHOOK) return;
+  if (source === 'discord') return;
+
+  const embed = {
+    title: source === 'minecraft' ? 'Minecraft Chat' : 'Website Chat',
+    description: content,
+    color: source === 'minecraft' ? 0x059669 : 0x7C3AED,
+    fields: [
+      { name: 'User', value: username || 'Unknown', inline: true },
+      { name: 'Source', value: source, inline: true }
+    ],
+    timestamp: new Date().toISOString()
+  };
+
+  const payload = { embeds: [embed] };
+  try {
+    await fetch(DISCORD_CHAT_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (err) {
+    console.warn('[discord webhook]', err);
+  }
+}
+
 // Reuse token auth from me.js
 async function resolveUser(req, res) {
   const auth = req.headers['authorization'];
@@ -68,11 +97,13 @@ export default async function handler(req, res) {
 
   // ---- POST: send a message ----
   if (req.method === 'POST') {
-    // Discord/MC bridge can POST with a special server secret instead of user token
     const bridgeSecret = req.headers['x-bridge-secret'];
-    let username, source;
+    const authHeader = req.headers['authorization'];
+    const authToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+    const isBridge = process.env.BRIDGE_SECRET && (bridgeSecret === process.env.BRIDGE_SECRET || authToken === process.env.BRIDGE_SECRET);
 
-    if (bridgeSecret && bridgeSecret === process.env.BRIDGE_SECRET) {
+    let username, source;
+    if (isBridge) {
       // Trusted bridge — accepts { username, source, content } directly
       username = req.body?.username;
       source = req.body?.source ?? 'discord';
@@ -103,6 +134,9 @@ export default async function handler(req, res) {
       content: msg.content,
       created_at: msg.created_at,
     });
+
+    // Forward website/MC messages to Discord if configured
+    await sendDiscordWebhook(msg.username, msg.source, msg.content);
 
     return res.status(201).json({ message: msg });
   }

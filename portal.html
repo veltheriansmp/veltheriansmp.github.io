@@ -167,8 +167,10 @@
     <div style="background:rgba(220,38,38,0.1);border-radius:10px;padding:10px 14px;margin-bottom:20px;text-align:left;">
       <p style="font-size:12px;color:#7F1D1D;font-weight:700;">Reason: <span id="ban-reason-text">—</span></p>
     </div>
-    <div style="display:flex;gap:8px;justify-content:center;">
-      <button class="btn btn-outline" style="border-color:var(--error);color:var(--error);" onclick="window.open('https://discord.gg/your-server','_blank')">Appeal</button>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px;">You may appeal on Discord or through our website.</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-outline" style="border-color:var(--error);color:var(--error);" onclick="window.open('https://discord.gg/your-server','_blank')">Appeal on Discord</button>
+      <button class="btn btn-outline" style="border-color:var(--primary);color:var(--primary);" onclick="window.open('/appeal.html','_blank')">Appeal on website</button>
       <button class="btn btn-danger" onclick="logout()" style="padding:8px 20px;">Log out</button>
     </div>
   </div>
