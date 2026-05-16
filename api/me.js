@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
   try {
     const { rows, rowCount } = await sql`
-      SELECT id, username, status, ban_reason
+      SELECT id, username, status, ban_reason, role, avatar_url, bio
       FROM users
       WHERE id = ${Number(id)} AND username = ${username}
       LIMIT 1
@@ -45,8 +45,11 @@ export default async function handler(req, res) {
     return res.status(200).json({
       id: user.id,
       username: user.username,
-      status: user.status,             // 'active' | 'banned'
+      status: user.status,
       ban_reason: user.ban_reason ?? null,
+      role: user.role ?? 'member',
+      avatar_url: user.avatar_url ?? null,
+      bio: user.bio ?? null,
     });
   } catch (err) {
     console.error('[me] DB error:', err);
